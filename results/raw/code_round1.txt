@@ -1,0 +1,5 @@
+[exact 0 2 0 1 1 1 think=0] {"passed": 28, "total": 32, "pass_rate": 0.875, "failed": ["Hard/11", "Hard/18", "Hard/20", "Hard/28"]} | tokens 9780 gen_s 1078 e2e_tok_s 9.1 | wall 1078s
+[fast 3 1 0.15 1 1 0 0.30 think=0] {"passed": 23, "total": 32, "pass_rate": 0.7188, "failed": ["Hard/1", "Hard/9", "Hard/12", "Hard/19", "Hard/20", "Hard/26", "Hard/28", "Hard/29", "Hard/30"]} | tokens 23249 gen_s 395 e2e_tok_s 58.9 | wall 395s
+[mid10 3 1 0.10 1 1 0 0.30 think=0] {"passed": 27, "total": 32, "pass_rate": 0.8438, "failed": ["Hard/0", "Hard/1", "Hard/7", "Hard/18", "Hard/29"]} | tokens 19602 gen_s 417 e2e_tok_s 47.0 | wall 418s
+[gentle 3 0 0.08 1 1 0 0.25 think=0] {"passed": 25, "total": 32, "pass_rate": 0.7812, "failed": ["Hard/0", "Hard/7", "Hard/15", "Hard/18", "Hard/22", "Hard/25", "Hard/28"]} | tokens 21650 gen_s 547 e2e_tok_s 39.6 | wall 547s
+DONE

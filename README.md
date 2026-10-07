@@ -51,9 +51,10 @@ Quality measured so far (fast vs exact; the same container is switched at runtim
 | Tool call + tool-result continuation fixture | pass | pass |
 | 6800-token sentinel instruction | pass | pass (42–46 s) |
 | Teacher-forced next-token agreement over ~1,200 positions | 100 % | **88 %** (mean KL 0.21) |
-| Hard-coding benchmark (32 problems, executed tests) | *running* | *running* |
+| Hard-coding benchmark (32 problems, executed tests), CAR 15 % (`fast`) | **28/32** | **23/32** |
+| same, CAR 10 % (`3 1 0.10 1 1 0 0.30`, 47 tok/s) | 28/32 | 27/32 |
 
-**Be clear about this:** at the token level the fast profile is a different model (~1 in 8 next-token choices differ
+**Be clear about this:** on hard code the 15 % fast setting loses ~5 of 32 problems; the 10 % setting loses 1 at 47 tok/s. at the token level the fast profile is a different model (~1 in 8 next-token choices differ
 under teacher forcing). The short factual and format checks pass, but that is not a broad quality guarantee. An earlier
 variant (no renormalisation) answered `17×23 = 490` once and looped in a Turkish story, and was dropped. Use `exact`
 when correctness matters more than speed.
