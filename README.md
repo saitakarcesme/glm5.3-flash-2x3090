@@ -26,8 +26,7 @@ Other measurements (fast profile, 128k build):
 * Prefill ≈ **515–535 tok/s** (4096-token chunks; it was ≈150 tok/s with 1024-token chunks).
 * **Prefix reuse works**: a 21.6k-token prompt took 47.9 s the first time and 0.6–0.8 s on the next turns with the same prefix
   (agent-style use).
-* Needle-in-a-haystack: 16k ✅; 64k found the right code but in the wrong letter case and with a stray `</think>` ❌
-  (decode is CAR-lossy; see open issues).
+* Needle-in-a-haystack: 16k ✅; 64k ✅ after the post-prefill refill (before it: right code, wrong case + stray `</think>`).
 
 ## What "fast" does, and what it costs
 
@@ -108,9 +107,9 @@ The fields are `mode keep thresh renorm small prefetch tnv`.
 
 ## Open issues / next steps
 
-* **Post-prefill cache holes.** A long prefill hands ~6.7 GB of expert VRAM per GPU to activations ("elastic"). GPU0
-  writes those experts back to RAM; GPU1 (1 GiB RAM tier) mostly loses them, so decode right after a long prompt runs
-  with a half-empty cache and CAR skips more experts. A refill after prefill is the next fix.
+* ~~Post-prefill cache holes~~ **fixed** (`runtime/expert_cache.py` + `Nv2.refill`): a long prefill hands ~6.6 GB of expert
+  VRAM per GPU to activations; the evicted experts are now re-admitted right after prefill (GPU0 1,053 in 0.45 s from RAM,
+  GPU1 1,056 in 2.0 s mostly from NVMe). The 64k needle that failed before now passes.
 * Coding-benchmark comparison of exact vs fast (in progress), then thinking mode.
 * Contexts above 128k (8-bit KV cache) and the prefill speed for them.
 

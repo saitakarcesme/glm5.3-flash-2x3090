@@ -53,7 +53,7 @@ docker run -d --name "$NAME" --restart unless-stopped --gpus all \
   "${COMMON[@]}" "${MODE[@]}" \
   -v "$HERE/runtime/nv2.py:/opt/glm53/glm53/nv2.py:ro" \
   -v "$HERE/runtime/serve_claude.py:/opt/glm53/glm53/serve.py:ro" \
-  -v "$HERE/runtime/base/expert_cache.py:/opt/glm53/glm53/expert_cache.py:ro" \
+  -v "$HERE/runtime/expert_cache.py:/opt/glm53/glm53/expert_cache.py:ro" \
   -v "$HERE/runtime/base/kernels:/opt/glm53/dual/kernels:ro" \
   -v "$HERE/runtime/car_kernel:/opt/glm53/car_kernel:ro" \
   -v "$BUILD/nv2_dual_0:/opt/glm53/build/nv2_dual_0" -v "$BUILD/nv2_dual_1:/opt/glm53/build/nv2_dual_1" \

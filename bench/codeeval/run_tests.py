@@ -1,7 +1,7 @@
 """Run generated solutions against the problem tests. Intended to run inside a no-network, memory-capped container.
 usage: run_tests.py problems.jsonl gens.jsonl"""
 import json, sys, re, subprocess, tempfile, os
-P = {json.loads(l)["task_id"]: json.loads(l) for l in open(sys.argv[1])}
+P = {json.loads(l)["task_id"]: json.loads(l) for l in open(sys.argv[1])}  # context field is ignored here
 G = [json.loads(l) for l in open(sys.argv[2])]
 ok = 0
 res = []

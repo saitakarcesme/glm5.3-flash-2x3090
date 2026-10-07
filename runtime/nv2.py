@@ -346,6 +346,45 @@ class Nv2:
         NT._log(f"nv2 iterative warm: {int((p.slotof >= 0).sum().item())} VRAM-resident of {p.S} slots after {it + 1} rounds")
         self._post_warm_once()
 
+    def refill(self, keys):
+        """Re-admit experts evicted by an elastic prefill. Returns the number of keys VRAM-resident again."""
+        p = self.pool
+        keys = np.unique(np.asarray([k for k in keys if 0 <= k < self.K], np.int64))
+        if len(keys) == 0:
+            return 0
+        for it in range(int(os.environ.get("GLM53_REFILL_ITERS", "12"))):
+            torch.cuda.synchronize(self.dev)
+            so = p.slotof.flatten().cpu().numpy()
+            todo = keys[so[keys] < 0]
+            if len(todo) == 0:
+                break
+            ks = self.e.state()[1].numpy()
+            inram = todo[ks[todo] == 2]
+            if len(inram) == 0:
+                miss = todo[ks[todo] == 0]
+                if len(miss) == 0:
+                    break
+                self.e.warm_read(torch.from_numpy(miss[: max(1, self.nram - 16)].copy()))
+                ks = self.e.state()[1].numpy()
+                inram = todo[ks[todo] == 2]
+                if len(inram) == 0:
+                    break
+            with torch.cuda.device(self.dev):
+                for li in np.unique(inram // self.E):
+                    e = inram[inram // self.E == li] % self.E + p.first
+                    for c in range(0, len(e), 256):
+                        p.step(int(li), torch.from_numpy(e[c:c + 256].copy()).to(self.dev), True)
+            torch.cuda.synchronize(self.dev)
+            if self.wb_on:
+                so = p.slotof.flatten().cpu().numpy()
+                vk = keys[so[keys] >= 0]
+                if len(vk):
+                    self.e.drop_keys(torch.from_numpy(vk.copy()))
+        self.e.nv_rows_all(self.L, self.E, p.slotof, self.a["home"], p.tabs)
+        torch.cuda.synchronize(self.dev)
+        so = p.slotof.flatten().cpu().numpy()
+        return int((so[keys] >= 0).sum())
+
     def _post_warm_once(self):
         p = self.pool
         torch.cuda.synchronize(self.dev)

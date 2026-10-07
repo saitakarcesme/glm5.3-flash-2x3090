@@ -13,7 +13,8 @@ f = open(a.out, "a")
 for p in P:
     if p["task_id"] in done:
         continue
-    msg = ("Complete the following Python function. Reply with the complete function (including the signature and any imports "
+    ctx = ("Repository context (other modules of the project, for reference only):\n```python\n" + p["context"] + "\n```\n\n") if p.get("context") else ""
+    msg = ctx + ("Complete the following Python function. Reply with the complete function (including the signature and any imports "
            "it needs) in a single ```python code block.\n\n```python\n" + p["prompt"] + "```")
     body = {"model": "glm-5.3-flash", "messages": [{"role": "user", "content": msg}], "max_tokens": a.max_tokens,
             "temperature": 0, "chat_template_kwargs": {"enable_thinking": bool(a.think)}}
