@@ -1,6 +1,6 @@
 """Decode benchmark: same prompt/protocol as archive benchmark.measure_decode, N reps, plus nv2 counter deltas."""
 import sys, json, time, statistics, urllib.request, pathlib, argparse
-sys.path.insert(0, "/home/isa/Experiments/glm53-flash-fit")
+import os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from benchmark import measure_decode
 ap = argparse.ArgumentParser()
 ap.add_argument("--url", default="http://127.0.0.1:30270")
