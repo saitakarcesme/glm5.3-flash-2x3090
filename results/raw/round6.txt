@@ -1,0 +1,9 @@
+READY after 125s
+[glm53-claude-ndt2 1 1 0.15 0 1] AGG 26.516 PER {0: 27.04, 1: 25.76, 2: 26.96} TTFT 0.72
+[glm53-claude-ndt2 1 1 0.10 0 1] AGG 19.658 PER {0: 20.19, 1: 18.73, 2: 20.13} TTFT 1.71
+[glm53-claude-ndt2 1 0 1.01 0 1] AGG 31.749 PER {0: 34.49, 1: 29.8, 2: 48.9} TTFT 0.46
+READY after 120s
+[glm53-claude-ndt3 1 1 0.15 0 1] AGG 21.733 PER {0: 21.36, 1: 20.54, 2: 23.58} TTFT 0.76
+[glm53-claude-ndt3 1 1 0.10 0 1] AGG 16.986 PER {0: 16.83, 1: 16.88, 2: 17.28} TTFT 1.57
+[glm53-claude-ndt3 1 0 1.01 0 1] AGG 26.497 PER {0: 24.62, 1: 24.35, 2: 32.73} TTFT 0.55
+DONE

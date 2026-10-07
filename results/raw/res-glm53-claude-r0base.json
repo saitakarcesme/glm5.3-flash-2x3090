@@ -1,0 +1,59 @@
+{
+ "agg_tok_s": 8.52355198801487,
+ "per_prompt": {
+  "0": 8.264755887487915,
+  "1": 7.819683090704364,
+  "2": 9.700548496489041
+ },
+ "ttft_median": 3.9144619975122623,
+ "rows": [
+  {
+   "ttft": 3.8702930660219863,
+   "tok": 255,
+   "dt": 30.919800853938796,
+   "text": "# How Database Indexes Work: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are one of the most important concepts in database performance optimization. An index is a data structure that allows the database to find rows quickly without scanning every row in a table. Think of it like the index at the back of a book — instead of reading every page to find a topic, you look up the topic in the index, which tells you exactly which pages contain it.\n\nWithout indexes, every query would require a **full table scan** — reading every row and checking whether it matches your filter conditions. For a table with millions of rows, this can take seconds or minutes. With the right index, the same query can complete in milliseconds.\n\n## The Core Problem Indexes Solve\n\nConsider a simple table:\n\n```sql\nCREATE TABLE users (\n    id          BIGINT PRIMARY KEY,\n    email       VARCHAR(255),\n    last_name   VARCHAR(100),\n    created_at  TIMESTAMP\n);\n```\n\nIf you run:\n\n```sql\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\nWithout an index on `email`, the database must check **every row** — if there are 10 million users, that's 10 million comparisons. This is O(n) complexity.\n\n",
+   "prompt": 0,
+   "tok_s": 8.247142379881021
+  },
+  {
+   "ttft": 3.402719344943762,
+   "tok": 255,
+   "dt": 32.614169450011104,
+   "text": "# Merging Overlapping Intervals\n\n## Implementation\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        list of merged [start, end] lists, sorted by start time\n\n    Raises:\n        ValueError: if an interval has start > end\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Validate input\n    for interval in intervals:\n        if interval[0] > interval[1]:\n            raise ValueError(f\"Invalid interval {interval}: start > end\")\n\n    # Sort by start time (and by end as tiebreaker for determinism)\n    sorted_intervals = sorted(intervals, key=lambda iv: (iv[0], iv[1]))\n\n    merged = [list(sorted_intervals[0])]\n\n    for start, end in sorted_intervals[1:]:\n        last = merged[-1]\n        # Overlap or adjacency: current interval touches/overlaps the last merged one\n        if start <= last[1]:\n            last[1] = max(last[1], end)  # extend the end if needed\n        else:\n            merged.append([start, end])\n\n    return merged\n```\n\n",
+   "prompt": 1,
+   "tok_s": 7.818687530609895
+  },
+  {
+   "ttft": 4.0815211470471695,
+   "tok": 255,
+   "dt": 26.241965919965878,
+   "text": "# Sonbaharın İstanbul'u\n\nEkim ayının ortasında bir sabah, İstanbul yine kendine has bir sessizlikle uyanmıştı. Boğaz'ın üzerinde ince bir sis, Bebek'ten Rumeli Hisarı'na kadar uzanan kıyıları yumuşak bir tül gibi örtmüş, yalıların pencerelerinde sabahın ilk ışığı henüz belirsiz bir altın rengiyle parlıyordu.\n\nAhmet Bey, Arnavutköy'deki eski ahşap yalısının penceresini açtığında, denizin üzerindeki bu sisin, sonbaharın İstanbul'a armağan ettiği o özel huzuru getirdiğini hissetti. Yazın kalabalığı çekilmiş, şehir artık kendi nefesini, kendi ritmini bulmuştu.\n\n---\n\n**Sabah**\n\nSaat yedi sularında, Ahmet Bey kahvesini balkonda içmeye başladı. Türk kahvesinin kokusu, ıslak yaprakların ve deniz tuzunun kokusuyla karışıyor, o meşhur İstanbul kokusunu oluşturuyordu. A",
+   "prompt": 2,
+   "tok_s": 9.717259780677727
+  },
+  {
+   "ttft": 3.9586309290025383,
+   "tok": 255,
+   "dt": 30.788291107979603,
+   "text": "# How Database Indexes Work: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are one of the most important concepts in database performance optimization. An index is a data structure that allows the database to find rows quickly without scanning every row in a table. Think of it like the index at the back of a book — instead of reading every page to find a topic, you look up the topic in the index, which tells you exactly which pages contain it.\n\nWithout indexes, every query would require a **full table scan** — reading every row and checking whether it matches your filter conditions. For a table with millions of rows, this can take seconds or minutes. With the right index, the same query can complete in milliseconds.\n\n## The Core Problem Indexes Solve\n\nConsider a simple table:\n\n```sql\nCREATE TABLE users (\n    id          BIGINT PRIMARY KEY,\n    email       VARCHAR(255),\n    last_name   VARCHAR(100),\n    created_at  TIMESTAMP\n);\n```\n\nIf you run:\n\n```sql\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\nWithout an index on `email`, the database must check **every row** — if there are 10 million users, that's 10 million comparisons. This is O(n) complexity.\n\n",
+   "prompt": 0,
+   "tok_s": 8.282369395094811
+  },
+  {
+   "ttft": 3.5339354160241783,
+   "tok": 255,
+   "dt": 32.60586598503869,
+   "text": "# Merging Overlapping Intervals\n\n## Implementation\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        list of merged [start, end] lists, sorted by start time\n\n    Raises:\n        ValueError: if an interval has start > end\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Validate input\n    for interval in intervals:\n        if interval[0] > interval[1]:\n            raise ValueError(f\"Invalid interval {interval}: start > end\")\n\n    # Sort by start time (and by end as tiebreaker for determinism)\n    sorted_intervals = sorted(intervals, key=lambda iv: (iv[0], iv[1]))\n\n    merged = [list(sorted_intervals[0])]\n\n    for start, end in sorted_intervals[1:]:\n        last = merged[-1]\n        # Overlap or adjacency: current interval touches/overlaps the last merged one\n        if start <= last[1]:\n            last[1] = max(last[1], end)  # extend the end if needed\n        else:\n            merged.append([start, end])\n\n    return merged\n```\n\n",
+   "prompt": 1,
+   "tok_s": 7.820678650798834
+  },
+  {
+   "ttft": 4.235266759991646,
+   "tok": 255,
+   "dt": 26.332536824978888,
+   "text": "# Sonbaharın İstanbul'u\n\nEkim ayının ortasında bir sabah, İstanbul yine kendine has bir sessizlikle uyanmıştı. Boğaz'ın üzerinde ince bir sis, Bebek'ten Rumeli Hisarı'na kadar uzanan kıyıları yumuşak bir tül gibi örtmüş, yalıların pencerelerinde sabahın ilk ışığı henüz belirsiz bir altın rengiyle parlıyordu.\n\nAhmet Bey, Arnavutköy'deki eski ahşap yalısının penceresini açtığında, denizin üzerindeki bu sisin, sonbaharın İstanbul'a armağan ettiği o özel huzuru getirdiğini hissetti. Yazın kalabalığı çekilmiş, şehir artık kendi nefesini, kendi ritmini bulmuştu.\n\n---\n\n**Sabah**\n\nSaat yedi sularında, Ahmet Bey kahvesini balkonda içmeye başladı. Türk kahvesinin kokusu, ıslak yaprakların ve deniz tuzunun kokusuyla karışıyor, o meşhur İstanbul kokusunu oluşturuyordu. A",
+   "prompt": 2,
+   "tok_s": 9.683837212300356
+  }
+ ]
+}

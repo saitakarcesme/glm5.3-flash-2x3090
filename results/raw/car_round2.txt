@@ -1,0 +1,6 @@
+[2 2 0 1 1] AGG 20.709 PER {0: 20.2, 1: 19.44, 2: 22.8} TTFT 1.39 | {"positions": 1194, "top1_agree": 0.8668, "mean_kl": 0.26461, "p99_kl": 2.9685, "ppl_ref_model": 1.1813, "ppl_test_model": 1.5966}
+[1 4 0 1 1] AGG 22.15 PER {0: 22.94, 1: 19.84, 2: 24.15} TTFT 1.35 | {"positions": 1194, "top1_agree": 0.9539, "mean_kl": 0.04612, "p99_kl": 0.723, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2258}
+[1 2 0 1 1] AGG 28.055 PER {0: 29.29, 1: 27.1, 2: 27.94} TTFT 0.74 | {"positions": 1194, "top1_agree": 0.9003, "mean_kl": 0.14577, "p99_kl": 2.0468, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3563}
+[1 1 0 1 1] AGG 31.328 PER {0: 33.81, 1: 30.44, 2: 30.23} TTFT 0.52 | {"positions": 1194, "top1_agree": 0.8543, "mean_kl": 0.29274, "p99_kl": 3.2422, "ppl_ref_model": 1.1813, "ppl_test_model": 1.6152}
+[1 2 0 0 1] AGG 30.224 PER {0: 29.41, 1: 28.51, 2: 33.25} TTFT 0.71 | {"positions": 1194, "top1_agree": 0.9079, "mean_kl": 0.10562, "p99_kl": 1.3874, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3179}
+DONE

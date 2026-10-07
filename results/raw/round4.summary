@@ -1,0 +1,7 @@
+r4a AGG 12.843 PER {0: 13.01, 1: 11.75, 2: 13.98} TTFT 2.72
+r4b IndexError: list index out of range
+ -- expert_cache: cuda:0: 27 MoE layers (experts 0..287), 3008 slots x 6.29 MB = 18.92 GB (111.4/layer), admit
+ -- expert_cache: cuda:1: 15 MoE layers (experts 0..287), 3040 slots x 6.29 MB = 19.13 GB (202.7/layer), admit
+ -- expert_cache: cuda:0: 27 MoE layers (experts 0..287), 3072 slots x 6.29 MB = 19.33 GB (113.8/layer), admit
+ -- expert_cache: cuda:1: 15 MoE layers (experts 0..287), 3104 slots x 6.29 MB = 19.53 GB (206.9/layer), admit
+DONE

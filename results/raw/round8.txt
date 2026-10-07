@@ -1,0 +1,8 @@
+[0 2 0 1 1 1] {"factual": "16/16", "repetition_4gram": [0.0, 0.0, 0.0], "spurious_think": 0, "agg_tok_s": 14.52}
+[3 1 0.15 0 1 0 0.30] {"factual": "16/16", "repetition_4gram": [0.0, 0.014, 0.326], "spurious_think": 0, "agg_tok_s": 51.18}
+[3 0 0.10 0 1 0 0.25] {"factual": "16/16", "repetition_4gram": [0.0, 0.0, 0.0], "spurious_think": 1, "agg_tok_s": 47.08}
+[3 1 0.12 0 1 0 0.40] {"factual": "16/16", "repetition_4gram": [0.0, 0.011, 0.42], "spurious_think": 1, "agg_tok_s": 51.73}
+[3 1 0.10 0 1 0 0.50] {"factual": "16/16", "repetition_4gram": [0.0, 0.014, 0.0], "spurious_think": 0, "agg_tok_s": 48.13}
+[3 2 0.15 0 1 0 0.30] {"factual": "16/16", "repetition_4gram": [0.019, 0.011, 0.131], "spurious_think": 1, "agg_tok_s": 52.26}
+[3 1 0.15 1 1 0 0.30] {"factual": "16/16", "repetition_4gram": [0.0, 0.0, 0.0], "spurious_think": 0, "agg_tok_s": 55.63}
+DONE

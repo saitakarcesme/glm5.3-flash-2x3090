@@ -1,0 +1,83 @@
+{
+ "agg_tok_s": 14.055867841854868,
+ "per_prompt": {
+  "0": 13.119018289584778,
+  "1": 12.831346075042012,
+  "2": 16.854075032937565
+ },
+ "ttft_median": 2.748675308073871,
+ "rows": [
+  {
+   "ttft": 2.748675308073871,
+   "tok": 255,
+   "dt": 19.112496849964373,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## What Is an Index?\n\nA database index is a data structure that speeds up data retrieval operations at the cost of additional storage space and slower write operations. Think of it like the index at the back of a book: instead of reading every page to find a topic, you look up the topic in the index and jump directly to the right page.\n\nWithout an index, a database must perform a **full table scan** — reading every row to find matches. With an index, it can locate matching rows in logarithmic time.\n\n```sql\n-- Creating a basic index\nCREATE INDEX idx_users_email ON users(email);\n\n-- A query that can now use that index\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\n---\n\n## How B-Trees Work\n\nMost relational databases (PostgreSQL, MySQL/InnoDB, SQL Server, Oracle) use **B-trees** (or B+ trees) as their default index structure. A B-tree is a balanced, multi-way tree that keeps data sorted and allows searches, insertions, and deletions in **O(log n)** time.\n\n### Structure\n\nA B-tree consists of three types of nodes:\n\n- **Root node** — the top of the tree",
+   "prompt": 0,
+   "tok_s": 13.342055828800586
+  },
+  {
+   "ttft": 2.310253510950133,
+   "tok": 255,
+   "dt": 19.873207262018695,
+   "text": "# Merging Overlapping Intervals\n\nHere's a complete implementation with tests and edge case explanations:\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals in a list.\n\n    Args:\n        intervals: List of [start, end] pairs (lists or tuples).\n\n    Returns:\n        List of merged, non-overlapping intervals, sorted by start.\n\n    Raises:\n        ValueError: If an interval has start > end or is malformed.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Validate and normalize each interval\n    normalized = []\n    for iv in intervals:\n        if len(iv) != 2:\n            raise ValueError(f\"Interval must have exactly 2 elements: {iv}\")\n        start, end = iv\n        if start > end:\n            raise ValueError(f\"Invalid interval (start > end): {iv}\")\n        normalized.append((start, end))\n\n    # Sort by start time (ties broken by end time)\n    normalized.sort(key=lambda x: (x[0], x[1]))\n\n    merged = [normalized[0]]\n    for start, end in normalized[1:]:\n        last_start, last_end = merged[-1]\n        # Overlaps or touches the previous interval?\n        if start <= last_end:\n",
+   "prompt": 1,
+   "tok_s": 12.831346075042012
+  },
+  {
+   "ttft": 2.9703702790429816,
+   "tok": 255,
+   "dt": 15.14549308095593,
+   "text": "# Sonbaharın İstanbul'u\n\n## Sabah\n\nEkim ayının son günüydü. İstanbul, sabahın ilk ışıklarıyla uyandığında, Boğaz'ın üzerinde ince bir sis tabakası asılı duruyordu. Güneş, Sirkeci'nin arkasındaki tepelerden yavaş yavaş yükselirken, sis yavaş yavaş dağılıyor, şehrin siluetini birer birer ortaya çıkarıyordu. Ayasofya'nın kubbesi, bu sabah özellikle görkemli görünüyordu; altın rengi bir ışık halesiyle çevriliydi.\n\nGalata Kulesi'nin eteklerinde, serin bir rüzgar esiyordu. Bu rüzgar, Karadeniz'den geliyor, Boğaz'ın iki yakasını dolaşıyor, sonunda Marmara'ya karışıyordu. Yapraklar, bu rüzgarın nefesiyle dans ediyordu. Çınar ağaçlarının devasa yaprakları, sararmış, kızarm",
+   "prompt": 2,
+   "tok_s": 16.83669185525819
+  },
+  {
+   "ttft": 2.8900835750391707,
+   "tok": 255,
+   "dt": 19.43743002496194,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## What Is an Index?\n\nA database index is a data structure that speeds up data retrieval operations at the cost of additional storage space and slower write operations. Think of it like the index at the back of a book: instead of reading every page to find a topic, you look up the topic in the index and jump directly to the right page.\n\nWithout an index, a database must perform a **full table scan** — reading every row to find matches. With an index, it can locate matching rows in logarithmic time.\n\n```sql\n-- Creating a basic index\nCREATE INDEX idx_users_email ON users(email);\n\n-- A query that can now use that index\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\n---\n\n## How B-Trees Work\n\nMost relational databases (PostgreSQL, MySQL/InnoDB, SQL Server, Oracle) use **B-trees** (or B+ trees) as their default index structure. A B-tree is a balanced, multi-way tree that keeps data sorted and allows searches, insertions, and deletions in **O(log n)** time.\n\n### Structure\n\nA B-tree consists of three types of nodes:\n\n- **Root node** — the top of the tree",
+   "prompt": 0,
+   "tok_s": 13.119018289584778
+  },
+  {
+   "ttft": 2.321472657029517,
+   "tok": 255,
+   "dt": 19.77121424395591,
+   "text": "# Merging Overlapping Intervals\n\nHere's a complete implementation with tests and edge case explanations:\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals in a list.\n\n    Args:\n        intervals: List of [start, end] pairs (lists or tuples).\n\n    Returns:\n        List of merged, non-overlapping intervals, sorted by start.\n\n    Raises:\n        ValueError: If an interval has start > end or is malformed.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Validate and normalize each interval\n    normalized = []\n    for iv in intervals:\n        if len(iv) != 2:\n            raise ValueError(f\"Interval must have exactly 2 elements: {iv}\")\n        start, end = iv\n        if start > end:\n            raise ValueError(f\"Invalid interval (start > end): {iv}\")\n        normalized.append((start, end))\n\n    # Sort by start time (ties broken by end time)\n    normalized.sort(key=lambda x: (x[0], x[1]))\n\n    merged = [normalized[0]]\n    for start, end in normalized[1:]:\n        last_start, last_end = merged[-1]\n        # Overlaps or touches the previous interval?\n        if start <= last_end:\n",
+   "prompt": 1,
+   "tok_s": 12.897538656633285
+  },
+  {
+   "ttft": 3.207738089025952,
+   "tok": 255,
+   "dt": 15.12987212301232,
+   "text": "# Sonbaharın İstanbul'u\n\n## Sabah\n\nEkim ayının son günüydü. İstanbul, sabahın ilk ışıklarıyla uyandığında, Boğaz'ın üzerinde ince bir sis tabakası asılı duruyordu. Güneş, Sirkeci'nin arkasındaki tepelerden yavaş yavaş yükselirken, sis yavaş yavaş dağılıyor, şehrin siluetini birer birer ortaya çıkarıyordu. Ayasofya'nın kubbesi, bu sabah özellikle görkemli görünüyordu; altın rengi bir ışık halesiyle çevriliydi.\n\nGalata Kulesi'nin eteklerinde, serin bir rüzgar esiyordu. Bu rüzgar, Karadeniz'den geliyor, Boğaz'ın iki yakasını dolaşıyor, sonunda Marmara'ya karışıyordu. Yapraklar, bu rüzgarın nefesiyle dans ediyordu. Çınar ağaçlarının devasa yaprakları, sararmış, kızarm",
+   "prompt": 2,
+   "tok_s": 16.854075032937565
+  },
+  {
+   "ttft": 2.6481578659731895,
+   "tok": 255,
+   "dt": 19.805020829080604,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## What Is an Index?\n\nA database index is a data structure that speeds up data retrieval operations at the cost of additional storage space and slower write operations. Think of it like the index at the back of a book: instead of reading every page to find a topic, you look up the topic in the index and jump directly to the right page.\n\nWithout an index, a database must perform a **full table scan** — reading every row to find matches. With an index, it can locate matching rows in logarithmic time.\n\n```sql\n-- Creating a basic index\nCREATE INDEX idx_users_email ON users(email);\n\n-- A query that can now use that index\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\n---\n\n## How B-Trees Work\n\nMost relational databases (PostgreSQL, MySQL/InnoDB, SQL Server, Oracle) use **B-trees** (or B+ trees) as their default index structure. A B-tree is a balanced, multi-way tree that keeps data sorted and allows searches, insertions, and deletions in **O(log n)** time.\n\n### Structure\n\nA B-tree consists of three types of nodes:\n\n- **Root node** — the top of the tree",
+   "prompt": 0,
+   "tok_s": 12.875522939393834
+  },
+  {
+   "ttft": 2.301107123028487,
+   "tok": 255,
+   "dt": 19.999773013056256,
+   "text": "# Merging Overlapping Intervals\n\nHere's a complete implementation with tests and edge case explanations:\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals in a list.\n\n    Args:\n        intervals: List of [start, end] pairs (lists or tuples).\n\n    Returns:\n        List of merged, non-overlapping intervals, sorted by start.\n\n    Raises:\n        ValueError: If an interval has start > end or is malformed.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Validate and normalize each interval\n    normalized = []\n    for iv in intervals:\n        if len(iv) != 2:\n            raise ValueError(f\"Interval must have exactly 2 elements: {iv}\")\n        start, end = iv\n        if start > end:\n            raise ValueError(f\"Invalid interval (start > end): {iv}\")\n        normalized.append((start, end))\n\n    # Sort by start time (ties broken by end time)\n    normalized.sort(key=lambda x: (x[0], x[1]))\n\n    merged = [normalized[0]]\n    for start, end in normalized[1:]:\n        last_start, last_end = merged[-1]\n        # Overlaps or touches the previous interval?\n        if start <= last_end:\n",
+   "prompt": 1,
+   "tok_s": 12.750144705818954
+  },
+  {
+   "ttft": 2.9798955320147797,
+   "tok": 255,
+   "dt": 15.00249729596544,
+   "text": "# Sonbaharın İstanbul'u\n\n## Sabah\n\nEkim ayının son günüydü. İstanbul, sabahın ilk ışıklarıyla uyandığında, Boğaz'ın üzerinde ince bir sis tabakası asılı duruyordu. Güneş, Sirkeci'nin arkasındaki tepelerden yavaş yavaş yükselirken, sis yavaş yavaş dağılıyor, şehrin siluetini birer birer ortaya çıkarıyordu. Ayasofya'nın kubbesi, bu sabah özellikle görkemli görünüyordu; altın rengi bir ışık halesiyle çevriliydi.\n\nGalata Kulesi'nin eteklerinde, serin bir rüzgar esiyordu. Bu rüzgar, Karadeniz'den geliyor, Boğaz'ın iki yakasını dolaşıyor, sonunda Marmara'ya karışıyordu. Yapraklar, bu rüzgarın nefesiyle dans ediyordu. Çınar ağaçlarının devasa yaprakları, sararmış, kızarm",
+   "prompt": 2,
+   "tok_s": 16.997170202361982
+  }
+ ]
+}

@@ -1,0 +1,7 @@
+[1 1 0.15 0 1] AGG 24.94 PER {0: 24.59, 1: 22.51, 2: 28.54} TTFT 0.63 | {"positions": 1194, "top1_agree": 0.8786, "mean_kl": 0.18637, "p99_kl": 2.2965, "ppl_ref_model": 1.1813, "ppl_test_model": 1.4765}
+[1 1 0.12 0 1] AGG 27.381 PER {0: 26.52, 1: 26.33, 2: 29.68} TTFT 0.99 | {"positions": 1194, "top1_agree": 0.9313, "mean_kl": 0.05427, "p99_kl": 0.7227, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2457}
+[2 1 0.15 0 1] AGG 21.859 PER {0: 20.79, 1: 20.64, 2: 24.59} TTFT 1.21 | {"positions": 1194, "top1_agree": 0.9564, "mean_kl": 0.03456, "p99_kl": 0.5035, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2242}
+[2 1 0.10 0 1] AGG 18.335 PER {0: 18.02, 1: 16.59, 2: 20.93} TTFT 2.01 | {"positions": 1194, "top1_agree": 0.9665, "mean_kl": 0.02063, "p99_kl": 0.324, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2055}
+[1 1 0.15 0 1] AGG 30.599 PER {0: 29.43, 1: 29.59, 2: 33.24} TTFT 0.73 | {"positions": 1194, "top1_agree": 0.897, "mean_kl": 0.12685, "p99_kl": 1.2711, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3586}
+{'cuda:0': {'car_dropped_calls': 0, 'car_fused_calls': 188460, 'small_calls': 1890, 'dq_bounce_calls': 44, 'dec_calls': 186570}, 'cuda:1': {'car_dropped_calls': 0, 'car_fused_calls': 104700, 'small_calls': 1050, 'dq_bounce_calls': 45, 'dec_calls': 103650}}
+DONE

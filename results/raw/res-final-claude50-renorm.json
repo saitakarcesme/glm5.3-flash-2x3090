@@ -1,0 +1,83 @@
+{
+ "agg_tok_s": 55.50096346299376,
+ "per_prompt": {
+  "0": 54.796715559989984,
+  "1": 62.278511146946556,
+  "2": 50.59351842731856
+ },
+ "ttft_median": 0.26121368003077805,
+ "rows": [
+  {
+   "ttft": 0.26117722399067134,
+   "tok": 255,
+   "dt": 4.674341308069415,
+   "text": "# How Database Indexes Work: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are specialized data structures that accelerate data retrieval operations on a database table at the cost of additional storage space and slower write operations. Think of an index like the index at the back of a book: instead of reading the entire book page by page to find a specific topic, you look up the topic in the index, which tells you exactly which pages contain the information you need.\n\nWithout indexes, databases must perform a **full table scan**—reading every row in a table to find matching records. With large tables containing millions of rows, this can take seconds or even minutes. With a well-designed index, the same query can return results in milliseconds.\n\nThis guide covers the fundamental mechanics of indexes, the B-tree structure that powers most modern databases, how query planners decide whether to use indexes, and practical examples using real SQL.\n\n---\n\n## Part 1: The Fundamental Problem Indexes Solve\n\n### Without an Index: Full Table Scans\n\nConsider a table with 10 million employee records:\n\n```sql\nCREATE TABLE employees (\n    employee_id INT PRIMARY KEY,\n    first_name VARCHAR(50),\n    last_name VARCHAR(50),\n    email VARCHAR(100),\n    department_id INT,\n    hire_date",
+   "prompt": 0,
+   "tok_s": 54.55314090132615
+  },
+  {
+   "ttft": 0.20444448303896934,
+   "tok": 255,
+   "dt": 4.09451021393761,
+   "text": "# Merging Overlapping Intervals\n\n## The Function\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals into non-overlapping merged intervals.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        List of merged [start, end] pairs, sorted by start time.\n\n    Raises:\n        ValueError: if an interval has start > end.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort by start; ties broken by end\n    intervals_sorted = sorted(intervals, key=lambda x: (x[0], x[1]))\n\n    merged = [list(intervals_sorted[0])]  # copy so we don't mutate input\n\n    for start, end in intervals_sorted[1:]:\n        last = merged[-1]\n        # Overlaps or touches the previous interval?\n        if start <= last[1]:\n            last[1] = max(last[1], end)  # extend; handles nested intervals\n        else:\n            merged.append([start, end])\n\n    return merged\n```\n\n## Executable Tests\n\n```python\nimport unittest\n\nclass TestMergeIntervals(unittest.TestCase):\n\n    def test_basic_merge(self):\n        self.assertEqual(\n            merge_intervals",
+   "prompt": 1,
+   "tok_s": 62.278511146946556
+  },
+  {
+   "ttft": 0.2944733100011945,
+   "tok": 255,
+   "dt": 5.040171309025027,
+   "text": "# Bir Sonbahar Günü İstanbul'da\n\n## Sabah\n\nEkim ayının son haftasıydı ve İstanbul, sonbaharın en zarif elbiselerini giymişti. Sabah saat sekizde, Beşiktaş'tan vapura binen genç bir kadın, Ayşe, penceresinden dışarıya bakarken gözleri doldu. Boğaz'ın üzerinde hafif bir pus vardı, güneş henüz tam yükselmemişti ve su, kurşun rengi bir ayna gibi durgundu.\n\nVapurun güvertesinde, rüzgar yüzüne çarparken, Ayşe bir an durdu. Kızıltoprak'ta otuz yıldır yaşadığı evden, bugün işe gitmeyecekti. Bugün, annesinin doğum günüydü. Ve annesi, tam kırk yıl önce, bu şehirde, bu aynı vapurda, bir genç adamla tanışmıştı. O adam, babasıydı.\n\nAyşe vapurun karşı kıyıya yaklaşırken, Kız Kulesi'ni görd",
+   "prompt": 2,
+   "tok_s": 50.59351842731856
+  },
+  {
+   "ttft": 0.27112207002937794,
+   "tok": 255,
+   "dt": 4.510040343971923,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are specialized data structures that dramatically accelerate data retrieval operations. Think of them like the index at the back of a book—instead of scanning every page to find a topic, you look up the keyword in the index and jump directly to the right page. Without indexes, databases must perform **full table scans**, reading every row to find matches. With indexes, queries that would take minutes can complete in milliseconds.\n\nThis guide covers how indexes work internally, with a focus on B-trees, how the query planner decides to use them, and practical examples.\n\n---\n\n## Part 1: Why Indexes Matter\n\n### The Problem: Full Table Scans\n\nConsider a table with 10 million rows:\n\n```sql\nSELECT * FROM orders WHERE customer_id = 42;\n```\n\nWithout an index, the database must read **every single row** and check whether `customer_id = 42`. If the table has 10 million rows, that's 10 million comparisons. If rows are spread across thousands of disk pages, the database may need to read all of them from disk—a costly operation, especially when disk I/O is the bottleneck.\n\nWith an index on `customer_id`, the database can instead:\n\n1",
+   "prompt": 0,
+   "tok_s": 56.540514175406564
+  },
+  {
+   "ttft": 0.21559065801557153,
+   "tok": 255,
+   "dt": 4.113584470935166,
+   "text": "# Merging Overlapping Intervals\n\n## Solution\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals into non-overlapping ones.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        List of merged [start, end] pairs, sorted by start.\n\n    Raises:\n        ValueError: if an interval has start > end.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort by start; use end as tiebreaker (stable, handles equal starts)\n    intervals_sorted = sorted(intervals, key=lambda x: (x[0], x[1]))\n\n    merged = [list(intervals_sorted[0])]  # copy so we don't mutate input\n\n    for start, end in intervals_sorted[1:]:\n        last = merged[-1]\n        # Overlaps or touches the previous interval?\n        if start <= last[1]:\n            last[1] = max(last[1], end)  # extend; max handles containment\n        else:\n            merged.append([start, end])\n\n    return merged\n```\n\n## Tests\n\n```python\nimport unittest\n\nclass TestMergeIntervals(unittest.TestCase):\n\n    def test_basic_overlap(self):\n        self.assertEqual(merge",
+   "prompt": 1,
+   "tok_s": 61.989732264335714
+  },
+  {
+   "ttft": 0.2894634020049125,
+   "tok": 255,
+   "dt": 5.229958542040549,
+   "text": "# Sonbaharın İstanbul'a Veda Mektubu\n\n## Ekim Ayının Son Günleri\n\nİstanbul'un sonbaharı, aslında bir veda mektubudur yaz aylarına. Ekimin son haftasında, şehir kendini hazırlar kışa; ama bu hazırlık, bir veda töreni gibi yavaş, ağırbaşlı ve biraz da hüzünlü bir ritüeldir. Sabah saatlerinde, Beşiktaş'tan Karaköy'e vapurla geçen biri, o gün hava nasıl olursa olsun, Boğaz'ın üzerinde asılı duran gri pusun farkına varır. Bu pus, yazın son bulutlarının bile artık kendini göstermediği bir dönemde, denizin nefesiyle yükselir ve şehrin siluetini bir perde gibi örter.\n\n## Sabahın İlk Saatleri\n\nSabah saat yedi gibi, Sultanahmet'te bir turist kervanı henüz uyanmamışken, bir İstanbul'lu, mesaiye erken giden bir memur, Eminönü'nde balık",
+   "prompt": 2,
+   "tok_s": 48.75755667090007
+  },
+  {
+   "ttft": 0.26121368003077805,
+   "tok": 255,
+   "dt": 4.653563583036885,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are specialized data structures that dramatically accelerate data retrieval operations. Think of them like the index at the back of a book—instead of scanning every page to find a topic, you look up the page number directly. Without indexes, databases must perform full table scans, examining every row to find matching records. With indexes, lookups that would take millions of row examinations can be reduced to a handful of operations.\n\n## Why Indexes Matter\n\nConsider a table with 10 million rows. A query like `SELECT * FROM users WHERE email = 'john@example.com'` without an index must examine all 10 million rows sequentially. With a B-tree index on the email column, the database can find the target row in roughly 20-30 steps (logarithmic in the number of entries), regardless of table size. This transforms milliseconds of scanning into microseconds of lookup.\n\n## B-Tree Indexes: The Workhorse\n\nMost relational databases (PostgreSQL, MySQL/InnoDB, Oracle, SQL Server) use B-trees or B+ trees as their default index structure. A B-tree is a balanced, multi-way tree where:\n\n- Each node contains multiple keys and pointers to child nodes\n- All",
+   "prompt": 0,
+   "tok_s": 54.796715559989984
+  },
+  {
+   "ttft": 0.22676013596355915,
+   "tok": 255,
+   "dt": 4.020084677031264,
+   "text": "# Merging Overlapping Intervals\n\n## Solution\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals into non-overlapping intervals.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        List of merged [start, end] intervals, sorted by start.\n\n    Raises:\n        TypeError: if intervals is not a list of pairs.\n        ValueError: if any interval has start > end.\n    \"\"\"\n    if not isinstance(intervals, list):\n        raise TypeError(\"intervals must be a list\")\n    if not all(isinstance(i, (list, tuple)) and len(i) == 2 for i in intervals):\n        raise TypeError(\"each interval must be a pair [start, end]\")\n    if any(start > end for start, end in intervals):\n        raise ValueError(\"interval start must not exceed end\")\n\n    if not intervals:\n        return []\n\n    # Sort by start (ties broken by end)\n    intervals_sorted = sorted(intervals, key=lambda x: (x[0], x[1]))\n\n    merged = [list(intervals_sorted[0])]\n    for start, end in intervals_sorted[1:]:\n        last = merged[-1]\n        # Overlap or adjacency:",
+   "prompt": 1,
+   "tok_s": 63.43149970371057
+  },
+  {
+   "ttft": 0.2866448101121932,
+   "tok": 255,
+   "dt": 5.014379068976268,
+   "text": "# Sonbaharın Son Vurgunu: İstanbul'da Bir Ekim Günü\n\n## Sabah\n\nEkim ayının son haftasıydı ve İstanbul, o sabah kendisini yıllardır göstermediği bir zarafetle sunuyordu. Güneş, Boğaz'ın üzerinde, sisin henüz çekilmediği saatlerde yükseliyordu; sis, bir perde gibi, Bebek'ten Rumeli Hisarı'na kadar uzanan kıyıları yumuşak bir gri örtüyle kaplamıştı. Sonra, saat yediye doğru, rüzgâr kuzeyden hafifçe esmeye başladı ve sis, tıpkı bir duman gibi, yavaş yavaş dağıldı. Güneş, altın sarısı bir ışıkla, denizin üzerinde parıltılar oluşturdu; bu parıltılar, dalgaların yavaş ama kararlı ritmiyle, kıyıya doğru ilerliyor, taş duvarların dibinde küçük, beyaz köpükler bırakıyordu.\n\nİstanbul'un sonbaharında her şey bir haz",
+   "prompt": 2,
+   "tok_s": 50.85375407249788
+  }
+ ]
+}

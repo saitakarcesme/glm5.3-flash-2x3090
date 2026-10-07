@@ -1,0 +1,11 @@
+r0 AGG 8.524 PER {0: 8.26, 1: 7.82, 2: 9.7} TTFT 3.91
+r1 AGG 13.761 PER {0: 12.96, 1: 12.34, 2: 16.72} TTFT 2.83
+r2 AGG 13.139 PER {0: 13.2, 1: 11.69, 2: 14.91} TTFT 2.8
+r3 AGG 13.152 PER {0: 12.83, 1: 11.79, 2: 15.31} TTFT 3.04
+ -- expert_cache: cuda:0: 27 MoE layers (experts 0..287), 3008 slots x 6.29 MB = 18.92 GB (111.4/layer), admit
+ -- expert_cache: cuda:1: 15 MoE layers (experts 0..287), 3040 slots x 6.29 MB = 19.13 GB (202.7/layer), admit
+ -- expert_cache: cuda:0: 28 MoE layers (experts 0..287), 2976 slots x 6.29 MB = 18.72 GB (106.3/layer), admit
+ -- expert_cache: cuda:1: 14 MoE layers (experts 0..287), 3072 slots x 6.29 MB = 19.33 GB (219.4/layer), admit
+ -- expert_cache: cuda:0: 26 MoE layers (experts 0..287), 3008 slots x 6.29 MB = 18.92 GB (115.7/layer), admit
+ -- expert_cache: cuda:1: 16 MoE layers (experts 0..287), 3008 slots x 6.29 MB = 18.92 GB (188.0/layer), admit
+DONE

@@ -1,0 +1,10 @@
+res-glm53-claude-e1.json median 10.771 runs [11.43, 10.89, 10.65, 10.77, 10.77] ttft 2.2 acc 109 / 147
+   cuda:0 {'picks': 54745, 'vram': 40570, 'ram': 11680, 'nvme': 2495, 'reads': 2843, 'nv_wait_s': 5.318422528} p50 {'us_step_wait': 335.9, 'us_copy': 1799.2, 'us_gap_copy_to_next_pub': 551.9, 'us_layer_total': 2893.8}
+   cuda:1 {'picks': 28361, 'vram': 26835, 'ram': 63, 'nvme': 1463, 'reads': 1665, 'nv_wait_s': 3.138276352} p50 {'us_step_wait': 11.3, 'us_copy': 2.0, 'us_gap_copy_to_next_pub': 535.6, 'us_layer_total': 3082.2}
+res-glm53-claude-e2.json median 12.504 runs [12.85, 12.61, 12.33, 12.35, 12.5] ttft 2.25 acc 109 / 147
+   cuda:0 {'picks': 54745, 'vram': 40573, 'ram': 11637, 'nvme': 2535, 'reads': 2885, 'nv_wait_s': 5.320670208} p50 {'us_step_wait': 3.1, 'us_copy': 1883.6, 'us_gap_copy_to_next_pub': 549.9, 'us_layer_total': 2549.8}
+   cuda:1 {'picks': 28361, 'vram': 26835, 'ram': 63, 'nvme': 1463, 'reads': 1665, 'nv_wait_s': 2.782283776} p50 {'us_step_wait': 2.0, 'us_copy': 2.0, 'us_gap_copy_to_next_pub': 538.6, 'us_layer_total': 3066.9}
+res-glm53-claude-e3.json median 13.422 runs [14.06, 13.63, 13.4, 13.38, 13.42] ttft 2.22 acc 109 / 147
+   cuda:0 {'picks': 54745, 'vram': 40579, 'ram': 12104, 'nvme': 2062, 'reads': 4253, 'nv_wait_s': 3.743587328} p50 {'us_step_wait': 3.1, 'us_copy': 1628.2, 'us_gap_copy_to_next_pub': 585.7, 'us_layer_total': 2405.4}
+   cuda:1 {'picks': 28361, 'vram': 26835, 'ram': 421, 'nvme': 1105, 'reads': 2002, 'nv_wait_s': 2.314363904} p50 {'us_step_wait': 1.0, 'us_copy': 2.0, 'us_gap_copy_to_next_pub': 571.4, 'us_layer_total': 1634.3}
+DONE

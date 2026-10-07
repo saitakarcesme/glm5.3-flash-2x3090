@@ -1,0 +1,83 @@
+{
+ "agg_tok_s": 53.880782709136966,
+ "per_prompt": {
+  "0": 53.2994988615528,
+  "1": 57.1087398244239,
+  "2": 53.052272507881234
+ },
+ "ttft_median": 0.22886612394358963,
+ "rows": [
+  {
+   "ttft": 0.22886612394358963,
+   "tok": 255,
+   "dt": 5.225258672027849,
+   "text": "# How Database Indexes Work\n\n## Introduction\n\nDatabase indexes are one of those topics that everyone uses but few truly understand. Most developers learn early that \"adding an index makes queries faster,\" and then stop there. But the mechanics underneath are genuinely interesting — and understanding them deeply changes how you design schemas, write queries, and debug slow queries.\n\nThis article walks through what indexes actually are, how B-tree indexes work internally, how query planners decide whether to use them, and what practical consequences all of this has for real applications. I'll use PostgreSQL as the running example (its documentation is excellent and its planner behavior is observable), but the concepts generalize to MySQL, SQL Server, Oracle, and most relational databases.\n\n## Part 1: What an Index Actually Is\n\n### The naive approach: full scans\n\nSuppose we have a table:\n\n```sql\nCREATE TABLE users (\n  id        SERIAL PRIMARY KEY,\n  email     VARCHAR(128),\n  created_at TIMESTAMPTZ,\n  status    TEXT,\n  account_balance NUMERIC,\n  ...\n);\n```\n\nAnd a query:\n\n```sql\nSELECT * FROM users WHERE email = 'someone@example.com';\n```\n\nWithout an index, the database has no choice but to do a **sequential scan**: read every row",
+   "prompt": 0,
+   "tok_s": 48.801411758824585
+  },
+  {
+   "ttft": 0.20558208704460412,
+   "tok": 255,
+   "dt": 4.321077917935327,
+   "text": "<think>Okay, the user wants me to write a Python function to merge overlapping intervals, include executable tests, and explain edge cases. Let me think through this carefully.\n\nFirst, I need to understand what \"merging overlapping intervals\" means. An interval is typically represented as a pair [start, end]. Two intervals overlap if one starts before the other ends and vice versa. For example, [1,3] and [2,4] overlap because 2 is within [1,3] and 3 is within [2,4]. When they overlap, they should be merged into [1,4]. If they don't overlap (like [1,2] and [3,4]), they stay separate.\n\nLet me think about the standard approach. The classic algorithm:\n1. Sort intervals by start time.\n2. Iterate through sorted intervals, comparing each with the last merged interval.\n3. If current interval's start <= last merged interval's end, they overlap (or touch), so merge by extending end to max of both ends.\n4. Otherwise, start a new interval.\n\nWait, there's a subtlety about \"touching\" intervals. Should [1,2] and [2,3] be merged? If intervals represent",
+   "prompt": 1,
+   "tok_s": 59.01305295643515
+  },
+  {
+   "ttft": 0.2713455710327253,
+   "tok": 255,
+   "dt": 4.391483762068674,
+   "text": "İstanbul'da sonbahar, Galata Kulesi'nin gölgesinin Uskudar'a uzandığı, serin ve parlak bir gün. Bir sonbahar günü, İstanbul'un en güzel günlerinden biri. Bu günü anlatan uzun ve betimleyici bir hikaye yaz. (Bu, özgün ve betimleyici bir hikaye; yüksek düzeyde ayrıntılı ve belirli bir yer ve kültür için; gerçek diyaloglar içerir; ve gerçek diyaloglar içerir; ve gerçek diyaloglar içerir; ve gerçek diyaloglar içerir; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyaloglar; ve gerçek diyalog",
+   "prompt": 2,
+   "tok_s": 58.06693450686436
+  },
+  {
+   "ttft": 0.22561128297820687,
+   "tok": 255,
+   "dt": 4.696847771061584,
+   "text": "# Database Indexes: A Complete Guide\n\n## Introduction\n\nDatabase indexes are one of the most important concepts in database performance engineering. An index is a data structure that allows the database engine to find rows quickly without scanning every row in a table. Think of it like the index at the back of a book: instead of reading every page to find a topic, you look up the term in the index, which points you directly to the page numbers where it appears.\n\nWithout indexes, every query that filters data must perform a **full table scan** — reading every row and checking whether it matches the query conditions. For a table with millions of rows, that can take seconds or minutes. With the right index, the same query can return results in milliseconds, because the database can jump directly to the relevant rows.\n\nThis guide explains how indexes work internally, focusing on the B-tree structure that underlies most indexes, how query planners decide whether to use an index, and practical examples you can apply in real systems.\n\n---\n\n## Part 1: The Core Problem Indexes Solve\n\n### Sequential scan vs. indexed lookup\n\nConsider a table of 10 million customer rows:\n\n```sql\nSELECT * FROM customers WHERE email = 'jane@example.com';\n```\n\nWithout an index on `",
+   "prompt": 0,
+   "tok_s": 54.29173190817823
+  },
+  {
+   "ttft": 0.20978032995481044,
+   "tok": 255,
+   "dt": 4.634580732090399,
+   "text": "<think>Let me think through this problem carefully.\n\nThe user wants a Python function to merge overlapping intervals. This is a classic algorithm problem (LeetCode 56 \"Merge Intervals\"). I need to:\n\n1. Write the function itself\n2. Include executable tests (assert-based tests, runnable directly)\n3. Explain edge cases\n\nLet me think about the problem:\n\n**Problem statement:** Given a collection of intervals (each interval is typically represented as a pair `[start, end]`), merge all overlapping intervals and return the list of merged, non-overlapping intervals covering all the input intervals.\n\n**Key design decisions:**\n\n- Input representation: list of tuples/pairs `(start, end)` or lists `[start, end]`. I'll accept both — Python tuples and lists both work with indexing. I'll write the function to work with pairs where `start <= end` (assume intervals are well-formed; if not, we can normalize by sorting the pair endpoints — that's an edge case worth mentioning).\n- Sorting: sort by start. If starts are equal, sort by end (secondary key) — this helps with identical intervals and touching intervals.\n- Merging logic: iterate through sorted intervals; keep a \"current\" merged interval; if the next interval",
+   "prompt": 1,
+   "tok_s": 55.02115827529966
+  },
+  {
+   "ttft": 0.2766769150039181,
+   "tok": 255,
+   "dt": 4.806580150965601,
+   "text": "İstanbul'da bir sonbahar günü, saat 11.50 ve başlangıç sıcaklığı 22.4°C, 24.4°C'ye yükseliyor, 18.1°C'ye düşüyor. Güneşli ve çok bulutlu bir gün. Rüzgar 6.3 m/s'den 4.8 m/s'ye yavaşlıyor. Yağış 0.1 mm'den 0.0 mm'ye düşüyor. Nem %66'dan %73'e yükseliyor. Yağış 0.1 mm. Yağış 0.1 mm. Yağış 0.1 mm. Yağış 0.1 mm. Ya güneşli, çok bulutlu\n\nBu verilerle uzun, akıcı, gerçekçi ve betimleyici bir hikaye yaz. İstanbul'da geçen bir sonbahar gününü anlatan bir hikaye yaz. Bu hikaye, bir günün hikayesi olmalı ve bir günün hikayesi olmalı ve bir günün hikayesi olmalı ve bir günün h Türkçe olarak yazılm",
+   "prompt": 2,
+   "tok_s": 53.052272507881234
+  },
+  {
+   "ttft": 0.23413897794671357,
+   "tok": 255,
+   "dt": 4.784285133006051,
+   "text": "# Database Indexes: A Complete Guide\n\nDatabase indexes are one of the most important concepts in database engineering. They're the mechanism that lets databases find data quickly without scanning every row, and understanding them deeply is essential for anyone working with data at scale.\n\nThis guide covers how indexes work internally, why B-trees are the dominant structure, how query planners decide whether to use them, and practical examples you can experiment with yourself.\n\n---\n\n## The Core Problem: Finding Data Without Scanning\n\nConsider a table with 100 million rows. A query like:\n\n```sql\nSELECT * FROM users WHERE email = 'someone@example.com';\n```\n\nWithout an index, the database must perform a **full table scan**: read every row, check whether `email` matches, and return matching rows. If rows are stored randomly, this could require reading 100 million rows — potentially gigabytes of data — before finding one match.\n\nWith an index, the database can instead follow a small, sorted structure that points directly to the matching row. That's the difference between reading a few pages and reading the entire table.\n\n> **Analogy:** Think of a phone book sorted by last name. To find \"John Smith,\" you don't read every entry — you flip to the S section,",
+   "prompt": 0,
+   "tok_s": 53.2994988615528
+  },
+  {
+   "ttft": 0.20542002492584288,
+   "tok": 255,
+   "dt": 4.465165941044688,
+   "text": "<think>Okay, the user wants a Python function to merge overlapping intervals, along with executable tests and explanations of edge cases. Let me think through this carefully.\n\nFirst, I need to understand what \"merging overlapping intervals\" means. Given a collection of intervals like [start, end], I want to combine any intervals that overlap into a single merged interval. For example, [1,3] and [2,4] overlap because 2 is within [1,3], so they merge into [1,4]. Similarly, [5,7] and [6,8] merge into [5,8]. But [1,2] and [3,4] don't overlap, so they stay separate.\n\nThe classic approach: sort intervals by start time, then iterate through them, merging each with the previous merged interval if the current interval's start is <= the previous interval's end. Wait, actually the standard condition is: if the current interval's start <= the last merged interval's end, they overlap (or touch). Hmm, but \"touching\" intervals like [1,2] and [2,3] — do they count as overlapping? This is an edge case I need to think about. Some definitions say touching intervals (",
+   "prompt": 1,
+   "tok_s": 57.1087398244239
+  },
+  {
+   "ttft": 0.2689413479529321,
+   "tok": 255,
+   "dt": 5.268755949102342,
+   "text": "İstanbul'da sonbahar, Galata Kulesi'nin gölgesinin uzadığı saatlerde başlar. Boğaz'ın serin suları, kuzeyden gelen rüzgârla çırpınır; Eminönü'nün çatısı, Yeni Cami'nin kubbesinin ardındaki sıra sıra martılar, Haliç'in altın rengi suya süzülür. Ağaçlar, Beşiktaş'taki yalıların bahçelerinde yapraklarını döker; Moda'daki asma yaprakları, koyu kırmızı bir halıya dönüşür; Kadıköy'de bir çay bahçesinde sonbaharın ilk akşamı düşer.\n\nSüleymaniye'nin silueti, hava döktüğünde bir perde gibi görünür; Fatih'in derin çatıları, ilk akşamın moruna döner; Galata'daki eski apartmanların cephesi, son bir ışıkla parlar. Boğaz'ı çapraz geçen bir vapur, Karakö",
+   "prompt": 2,
+   "tok_s": 48.398521864244884
+  }
+ ]
+}

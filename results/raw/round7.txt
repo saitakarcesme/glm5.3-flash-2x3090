@@ -1,0 +1,8 @@
+READY after 115s
+[1 1 0.15 0 1 0] AGG 42.617 PER {0: 36.69, 1: 46.22, 2: 47.64} TTFT 0.38 | {"positions": 1194, "top1_agree": 0.8945, "mean_kl": 0.13843, "p99_kl": 1.752, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3742}
+[3 1 0.12 0 1 0 0.30] AGG 48.609 PER {0: 48.76, 1: 48.72, 2: 48.4} TTFT 0.35 | {"positions": 1194, "top1_agree": 0.9154, "mean_kl": 0.11454, "p99_kl": 1.6357, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3271}
+[3 1 0.10 0 1 0 0.30] AGG 45.792 PER {0: 45.7, 1: 48.63, 2: 43.47} TTFT 0.37 | {"positions": 1194, "top1_agree": 0.9213, "mean_kl": 0.08336, "p99_kl": 1.3564, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2823}
+[3 1 0.15 0 1 0 0.30] AGG 52.484 PER {0: 51.58, 1: 57.11, 2: 49.57} TTFT 0.26 | {"positions": 1194, "top1_agree": 0.9087, "mean_kl": 0.11804, "p99_kl": 1.5962, "ppl_ref_model": 1.1813, "ppl_test_model": 1.3373}
+[3 0 0.10 0 1 0 0.25] AGG 47.273 PER {0: 47.09, 1: 47.7, 2: 47.15} TTFT 0.37 | {"positions": 1194, "top1_agree": 0.9296, "mean_kl": 0.06184, "p99_kl": 0.9944, "ppl_ref_model": 1.1813, "ppl_test_model": 1.26}
+[3 1 0.08 0 1 0 0.30] AGG 42.396 PER {0: 40.93, 1: 43.69, 2: 42.71} TTFT 0.44 | {"positions": 1194, "top1_agree": 0.9439, "mean_kl": 0.0529, "p99_kl": 0.801, "ppl_ref_model": 1.1813, "ppl_test_model": 1.2452}
+DONE
