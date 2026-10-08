@@ -42,7 +42,7 @@ COMMON=(
 )
 case "$PROFILE" in
   fast)  MODE=(-e GLM53_CAR=3 -e GLM53_CAR_KEEP=1 -e GLM53_CAR_THRESH=0.15 -e GLM53_CAR_RENORM=1 -e GLM53_CAR_SMALL=1
-               -e GLM53_CAR_PF=0 -e GLM53_CAR_TNV=0.30) ;;
+               -e GLM53_CAR_PF=0 -e GLM53_CAR_TNV=0.30 -e GLM53_CAR_MAXSCALE=1.5) ;;
   exact) MODE=(-e GLM53_CAR=0) ;;
   *) echo "profile must be fast or exact" >&2; exit 1 ;;
 esac

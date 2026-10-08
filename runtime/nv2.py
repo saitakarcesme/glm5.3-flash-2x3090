@@ -85,6 +85,7 @@ def _mapped(nbytes, dev_idx, tag):
 
 
 _CAR = {}
+CAR_OVERRIDE = None   # claude-opt: set by the server's loop guard (exact for the rest of a request)
 def _gpu_trace(sec=4.0):
     """claude-opt: CUPTI kernel trace for sec seconds; writes /tmp/glm53_trace.json with per-device busy time and top kernels."""
     from torch.profiler import profile, ProfilerActivity
@@ -118,7 +119,7 @@ def _car_ext(device):
             from torch.utils.cpp_extension import load
             b = f"/tmp/car_build_{i}"; os.makedirs(b, exist_ok=True)
             with torch.cuda.device(i):
-                _CAR[i] = load(name=f"glm53_car2_{i}", sources=["/opt/glm53/car_kernel/car.cu"], build_directory=b,
+                _CAR[i] = load(name=f"glm53_car3_{i}", sources=["/opt/glm53/car_kernel/car.cu"], build_directory=b,
                                extra_cuda_cflags=["-O3"], verbose=False)
         except Exception as ex:
             print(f" !! CAR fused kernel unavailable ({ex}); torch fallback", flush=True)
@@ -284,7 +285,7 @@ class Nv2:
             try:
                 f = f"/tmp/glm53_car_{self.dev.index or 0}"   # claude-opt: optional per-GPU override
                 v = open(f if os.path.exists(f) else "/tmp/glm53_car").read().split()
-                self.car = [int(v[0]), int(v[1]), float(v[2]), int(v[3]), int(v[4])] + ([int(v[5])] if len(v) > 5 else []) + ([float(v[6])] if len(v) > 6 else [])
+                self.car = [int(v[0]), int(v[1]), float(v[2]), int(v[3]), int(v[4])] + ([int(v[5])] if len(v) > 5 else []) + ([float(v[6])] if len(v) > 6 else []) + ([float(v[7])] if len(v) > 7 else [])
             except Exception:
                 pass
             pub = int(self.hc[0])
@@ -423,7 +424,7 @@ class Nv2:
             return sel, w, False
         if p.stage_n:
             p._stage_hook_nv2(li, n)
-        car = self.car
+        car = CAR_OVERRIDE if CAR_OVERRIDE is not None else self.car
         if car[0] and (n <= p.admit_max or car[4]):
             sel, w = self._car(li, sel, w, car)
         dec = n <= p.admit_max
@@ -463,7 +464,8 @@ class Nv2:
         if _car_ext(self.dev) is not None and w.dtype == torch.half and sel.is_contiguous() and w.is_contiguous():
             so, wo = torch.empty_like(sel), torch.empty_like(w)
             _CAR[self.dev.index or 0].car(sel, w, so, wo, p.slotof[li], self.res_addr + li * self.E * 4, car[0], car[1],
-                                          float(car[2]), car[3], float(car[6]) if len(car) > 6 else 1.01)
+                                          float(car[2]), car[3], float(car[6]) if len(car) > 6 else 1.01,
+                                          float(car[7]) if len(car) > 7 else float(os.environ.get("GLM53_CAR_MAXSCALE", "1.5")))
             self.st["car_fused_calls"] += 1
             return so, wo
         k = sel.shape[-1]

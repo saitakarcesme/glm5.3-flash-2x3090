@@ -46,3 +46,18 @@ x4) does 6.4 GB/s. In the 21/21 split GPU1 was link-bound copying experts. Chang
 * Per-GPU CAR: running GPU1 exact halves speed (its misses are NVMe over an x4 link), and most of the token-level deviation came from GPU1 skipping experts.
 * Fix: RAM tier 13.5 GiB (GPU0) / 4 GiB (GPU1). Short coding set, same container: exact 27/32, fast 26/32 at 54.7 tok/s (it was 23/32 before).
 * The teacher-forced probe is noisy here (it runs without admission, so it depends on whatever is resident); executed coding pass rate is the decision metric.
+
+## Day 2 — agent reliability
+
+* pi website sessions failed for both models. GLM's failure was traced through the saved sessions, not guessed:
+  1. Exact and fast both spent whole 16k-token turns thinking (exact: coherent re-derivation of numbers; fast: `OK — OK —` loop).
+  2. The server sampled with top-p 1.0 when the client sent nothing (the model card says 0.95).
+  3. The model sometimes starts `<tool_call>` before closing `</think>`; the parser then returned no tool call and pi ended the run.
+* Prefix reuse is bit-exact (same 496-char greedy output with and without the cache), and long-context recall at ~41k tokens
+  is 6/6 in every mode, so neither caused the failures.
+* Fixes: official sampling defaults, thinking budget, act budget, loop guard (exact fallback), think/tool parser fix,
+  renorm cap. Loop-detector thresholds were tightened after a false positive (≥ 6 repeats over ≥ 400 chars; 1,000 for
+  non-alphanumeric units).
+* Agent suite (fast, before the parser fix): bug fix, data, feature, refactor and single-page site pass, matching exact.
+  The report-site task produced its first correct 10 KB page with the guards, then stopped because of the
+  think/tool parser bug, which is now fixed.

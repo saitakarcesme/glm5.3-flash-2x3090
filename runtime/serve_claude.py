@@ -273,6 +273,109 @@ async def run_job(ids, sp, stop_strings=None):
                 pass
 
 
+
+# ---- claude-opt reliability layer ---------------------------------------------------------------------------------
+THINK_BUDGET = int(os.environ.get("GLM53_THINK_BUDGET", "6144"))
+LOOP_GUARD = os.environ.get("GLM53_LOOP_GUARD", "1") == "1"
+THINK_CLOSE = "\n\nI have thought about this enough; now I will carry it out.\n</think>\n\n"
+ACT_BUDGET = int(os.environ.get("GLM53_ACT_BUDGET", "3000"))
+ACT_NUDGE = "\n\nEnough analysis — I will make the tool call now.\n"
+_WORD = re.compile(r"\w+")
+
+
+def _loop_start(t):
+    """Index where a degenerate loop begins in t, or None."""
+    tail = t[-1500:]
+    off = len(t) - len(tail)
+    for unit in range(1, 201):
+        if unit * 3 > len(tail):
+            break
+        u = tail[-unit:]
+        if not u.strip():
+            continue
+        k, j = 1, len(tail) - unit
+        while j - unit >= 0 and tail[j - unit:j] == u:
+            k += 1; j -= unit
+        alnum = any(c.isalnum() for c in u)
+        if k >= 6 and k * unit >= (400 if alnum else 1000):
+            return off + j
+    w = t[-3000:]
+    words = _WORD.findall(w)
+    if len(words) >= 300:
+        g = [tuple(words[i:i + 8]) for i in range(len(words) - 7)]
+        if 1 - len(set(g)) / len(g) > 0.85:
+            return len(t) - len(w)
+    return None
+
+
+async def guarded_job(ids, sp, stops, thinking, tools_present=False):
+    """run_job with a thinking budget and a loop guard. Yields (text, completion tokens, finish) like run_job; the text
+    is what the client sees (monotonic while thinking), the model context is kept consistent across restarts."""
+    import nv2 as _nv2
+    shown, ctx_extra, used, restarts = "", "", 0, 0
+    budget = THINK_BUDGET if thinking else 0
+    max_new = sp.get("max_new_tokens")
+    in_think = thinking
+    forced = False
+    acted = False
+    try:
+        while True:
+            cur_ids = ids if not ctx_extra else torch.cat([ids, tok.encode(ctx_extra, encode_special_tokens=True)], dim=-1)
+            spk = dict(sp)
+            if max_new is not None:
+                spk["max_new_tokens"] = max(1, int(max_new) - used)
+            restart = None
+            g = run_job(cur_ids, spk, stops)
+            last_check = 0
+            async for text, n, fin in g:
+                if in_think and ("</think>" in text or "<tool_call>" in text):
+                    in_think = False
+                if fin is None and len(text) - last_check >= 48:
+                    last_check = len(text)
+                    if in_think and budget and used + n >= budget:
+                        restart = ("budget", ctx_extra + text, n)
+                    elif (tools_present and not in_think and not acted and ACT_BUDGET and "<tool_call>" not in text
+                          and len(text.split("</think>")[-1]) / 3.6 > ACT_BUDGET):
+                        restart = ("act", ctx_extra + text, n)
+                    elif LOOP_GUARD and restarts < 3:
+                        full = ctx_extra + text
+                        i = _loop_start(full)
+                        if i is not None and i >= len(ctx_extra):
+                            restart = ("loop", full[:i], n)
+                if restart:
+                    break
+                yield shown + text, used + n, fin
+                if fin is not None:
+                    return
+            await g.aclose()
+            if not restart:
+                return
+            kind, cut, n = restart
+            used += n; restarts += 1
+            G["stats"]["guard_" + kind] = G["stats"].get("guard_" + kind, 0) + 1
+            if kind == "loop" and not forced:
+                _nv2.CAR_OVERRIDE = [0, 2, 0.0, 1, 1, 1]
+                forced = True
+            if kind == "act":
+                acted = True
+                shown = shown + text + ACT_NUDGE
+                ctx_extra = cut + ACT_NUDGE
+            elif in_think:   # end the thinking at the cut and move on to the answer
+                shown = shown + (text if kind == "budget" else text[:max(0, len(cut) - len(ctx_extra))]) + THINK_CLOSE
+                ctx_extra = cut + THINK_CLOSE
+                in_think = False
+            else:          # answer phase: drop the looping tail and continue from before it
+                shown = shown + cut[len(ctx_extra):]
+                ctx_extra = cut
+            print(f" -- guard: {kind} restart #{restarts} after {used} tokens (exact={forced}) cut-tail={cut[-120:]!r}", flush=True)
+            if max_new is not None and used >= int(max_new):
+                yield shown, used, {"type": "length", "reason": "guard"}
+                return
+    finally:
+        if forced:
+            _nv2.CAR_OVERRIDE = None
+
+
 def teacher_forced(ids, start, topn, want_ids):
     with torch.inference_mode():
         logits = model.forward(ids, {"attn_mode": "flash_attn_nc"}).float()[0]
@@ -362,8 +465,24 @@ async def tokenize(req: Request):
 
 # ---- OpenAI-compatible endpoints ----------------------------------------------------------------------------------
 
+_GEN = {}
+
+
+def _gen_defaults():
+    if not _GEN:
+        try:
+            g = json.load(open(os.path.join(args.model_dir, "generation_config.json")))
+        except Exception:
+            g = {}
+        _GEN["t"] = float(os.environ.get("GLM53_DEFAULT_TEMPERATURE", g.get("temperature", 1.0)))
+        _GEN["p"] = float(os.environ.get("GLM53_DEFAULT_TOP_P", g.get("top_p", 0.95)))
+        print(f" -- sampling defaults (no client value): temperature {_GEN['t']}, top_p {_GEN['p']}", flush=True)
+    return _GEN["t"], _GEN["p"]
+
+
 def openai_sp(body):
-    return {"temperature": body.get("temperature", 1.0), "top_p": body.get("top_p", 1.0), "top_k": body.get("top_k"),
+    dt, dp = _gen_defaults()
+    return {"temperature": body.get("temperature", dt), "top_p": body.get("top_p", dp), "top_k": body.get("top_k"),
             "min_p": body.get("min_p"), "max_new_tokens": body.get("max_completion_tokens") or body.get("max_tokens")}
 
 
@@ -374,6 +493,10 @@ def stops_of(body):
 
 def split_reasoning(text):
     """GLM-5.3 thinks inside <think>...</think>; the prompt already opened the block."""
+    # THINK_TOOL_FIX: a tool call that starts before </think> ends the reasoning there
+    tc, ct = text.find("<tool_call>"), text.find("</think>")
+    if tc >= 0 and (ct < 0 or tc < ct):
+        return text[:tc].replace("<think>", "").strip(), text[tc:].replace("</think>", "").strip()
     if "</think>" in text:
         r, c = text.split("</think>", 1)
         return r.replace("<think>", "").strip(), c.strip()
@@ -393,7 +516,7 @@ async def chat(req: Request):
     cid, created, P = "chatcmpl-" + uuid.uuid4().hex[:24], int(time.time()), ids.shape[-1]
     if body.get("stream"):
         async def events():
-            g = run_job(ids, sp, stops)
+            g = guarded_job(ids, sp, stops, thinking, bool(tools))
             gone, wt = watch_disconnect(req)
             sent, in_think, held = 0, thinking, ""
             base = {"id": cid, "object": "chat.completion.chunk", "created": created, "model": args.served_name}
@@ -404,14 +527,18 @@ async def chat(req: Request):
                     new = text[sent:]
                     hold = 0   # hold back a possible partial "</think>" at the end of the text
                     if in_think and fin is None:
-                        for k in range(min(len("</think>") - 1, len(new)), 0, -1):
-                            if "</think>".startswith(new[-k:]):
+                        for k in range(min(len("<tool_call>") - 1, len(new)), 0, -1):
+                            if "</think>".startswith(new[-k:]) or "<tool_call>".startswith(new[-k:]):
                                 hold = k; break
                     new = new[:len(new) - hold] if hold else new
                     sent += len(new)
                     while new:
                         if in_think:
-                            r, sep, rest = new.partition("</think>")
+                            tc, ct = new.find("<tool_call>"), new.find("</think>")
+                            if tc >= 0 and (ct < 0 or tc < ct):   # THINK_TOOL_FIX
+                                r, sep, rest = new[:tc], "</think>", new[tc:]
+                            else:
+                                r, sep, rest = new.partition("</think>")
                             if r:
                                 yield sse(dict(base, choices=[{"index": 0, "delta": {"reasoning_content": r.replace("<think>", "")}, "finish_reason": None}]))
                             if not sep:
@@ -441,7 +568,7 @@ async def chat(req: Request):
                 await g.aclose()
         return StreamingResponse(events(), media_type="text/event-stream")
     text, n, fin = "", 0, None
-    async for text, n, fin in run_job(ids, sp, stops):
+    async for text, n, fin in guarded_job(ids, sp, stops, thinking, bool(tools)):
         pass
     if thinking:
         reasoning, content = split_reasoning(text)
@@ -469,7 +596,7 @@ async def completions(req: Request):
     base = {"id": cid, "object": "text_completion", "created": created, "model": args.served_name}
     if body.get("stream"):
         async def events():
-            g = run_job(ids, sp, stops)
+            g = guarded_job(ids, sp, stops, False)
             gone, wt = watch_disconnect(req)
             sent, n, fin = 0, 0, None
             try:

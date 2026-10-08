@@ -63,6 +63,24 @@ under teacher forcing). The short factual and format checks pass, but that is no
 variant (no renormalisation) answered `17×23 = 490` once and looped in a Turkish story, and was dropped. Use `exact`
 when correctness matters more than speed.
 
+## Reliability layer for agent use (server side)
+
+The pi agent sessions exposed failure modes that single-turn benchmarks never hit. Each one was reproduced first, then
+fixed in `runtime/serve_claude.py`:
+
+| Failure seen in agent sessions | Cause | Fix |
+|---|---|---|
+| Garbage tokens / character floods in long turns | Server sampled with top-p 1.0 when the client sent none; the full tail of a 2-bit model derails | Default to the model's `generation_config.json` (temperature 1.0, **top-p 0.95**) |
+| Turn spends all 16k tokens thinking (exact mode too), never acts | GLM over-deliberates on noisy inputs | **Thinking budget**: after 6,144 reasoning tokens, close `</think>` and continue (budget forcing) |
+| Long prose planning in the answer, no tool call | Same, after the think block | **Act budget**: once per request, a one-line nudge after ~3,000 answer tokens without a tool call |
+| Degenerate loops (`OK — OK — …`) | Repetition attractor under CAR | **Loop guard**: cut back to the loop start and finish the request with CAR off (exact experts) |
+| Agent stops with `finish=stop` and no tool call | Model opens `<tool_call>` *inside* the think block; the parser treated it as reasoning | Treat `<tool_call>` during thinking as the end of the thinking (streaming and non-streaming) |
+| Runaway amplification when most experts are skipped | Renormalisation scale tot/kept unbounded | Cap at 1.5× (`GLM53_CAR_MAXSCALE`) |
+
+Agent suite (`bench/agentbench`, pi non-interactive, 6 tasks, automatic checks in a `--network none` container):
+small and medium tasks (bug fix, feature, refactor, data, single page) pass in fast mode, as they do in exact mode, at 2–5×
+the speed. The hardest task (synthesise a site from long, noisy notes) is still being stabilised; see `docs/JOURNAL.md`.
+
 ## Things that were measured and did *not* help
 
 | Idea | Result |

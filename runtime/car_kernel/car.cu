@@ -9,7 +9,7 @@
 template <typename TS>
 __global__ void car_k(const TS* __restrict__ sel, const __half* __restrict__ w, TS* __restrict__ so, __half* __restrict__ wo,
                       int R, int K, int E, const int* __restrict__ slotof, const volatile int* res, int mode, int keep,
-                      float thresh, int renorm, float tnv)
+                      float thresh, int renorm, float tnv, float maxscale)
 {
     const int r = blockIdx.x * blockDim.x + threadIdx.x;
     if (r >= R) return;
@@ -44,7 +44,7 @@ __global__ void car_k(const TS* __restrict__ sel, const __half* __restrict__ w, 
     for (int k = 0; k < K; ++k) if (kp[k] && vr[k] && (tgt < 0 || wf[k] > wf[tgt])) tgt = k;
     if (tgt < 0) for (int k = 0; k < K; ++k) if (kp[k] && (tgt < 0 || wf[k] > wf[tgt])) tgt = k;
     if (tgt < 0) tgt = best;
-    const float sc = (renorm && kept > 0.f) ? tot / kept : 1.f;
+    const float sc = (renorm && kept > 0.f) ? fminf(tot / kept, maxscale) : 1.f;   // capped: no runaway amplification
     for (int k = 0; k < K; ++k)
     {
         so[r * K + k] = (TS) (kp[k] ? id[k] : id[tgt]);
@@ -53,7 +53,7 @@ __global__ void car_k(const TS* __restrict__ sel, const __half* __restrict__ w, 
 }
 
 void car(at::Tensor sel, at::Tensor w, at::Tensor so, at::Tensor wo, at::Tensor slotof_row, int64_t res_addr,
-         int64_t mode, int64_t keep, double thresh, int64_t renorm, double tnv)
+         int64_t mode, int64_t keep, double thresh, int64_t renorm, double tnv, double maxscale)
 {
     c10::cuda::CUDAGuard g(sel.device());
     TORCH_CHECK(sel.is_contiguous() && w.is_contiguous() && w.dtype() == at::kHalf && slotof_row.dtype() == at::kInt);
@@ -63,12 +63,12 @@ void car(at::Tensor sel, at::Tensor w, at::Tensor so, at::Tensor wo, at::Tensor 
     const int T = 128, B = (R + T - 1) / T;
     if (sel.dtype() == at::kLong)
         car_k<int64_t><<<B, T, 0, st>>>(sel.data_ptr<int64_t>(), (const __half*) w.data_ptr(), so.data_ptr<int64_t>(),
-            (__half*) wo.data_ptr(), R, K, E, slotof_row.data_ptr<int>(), (const volatile int*) res_addr, (int) mode, (int) keep, (float) thresh, (int) renorm, (float) tnv);
+            (__half*) wo.data_ptr(), R, K, E, slotof_row.data_ptr<int>(), (const volatile int*) res_addr, (int) mode, (int) keep, (float) thresh, (int) renorm, (float) tnv, (float) maxscale);
     else
     {
         TORCH_CHECK(sel.dtype() == at::kInt);
         car_k<int32_t><<<B, T, 0, st>>>(sel.data_ptr<int32_t>(), (const __half*) w.data_ptr(), so.data_ptr<int32_t>(),
-            (__half*) wo.data_ptr(), R, K, E, slotof_row.data_ptr<int>(), (const volatile int*) res_addr, (int) mode, (int) keep, (float) thresh, (int) renorm, (float) tnv);
+            (__half*) wo.data_ptr(), R, K, E, slotof_row.data_ptr<int>(), (const volatile int*) res_addr, (int) mode, (int) keep, (float) thresh, (int) renorm, (float) tnv, (float) maxscale);
     }
 }
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) { m.def("car", &car); }
