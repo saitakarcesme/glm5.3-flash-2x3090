@@ -207,8 +207,15 @@ def make_sampler(sp):
     t = float(sp.get("temperature", 1.0) if sp.get("temperature") is not None else 1.0)
     if t <= 0:
         return ArgmaxSampler()
+    f = lambda k, env, d: float(sp[k]) if sp.get(k) is not None else float(os.environ.get(env, d))
+    dry = f("dry_multiplier", "GLM53_DEFAULT_DRY", "0")
     return ComboSampler(temperature=t, top_p=float(sp.get("top_p") or 1.0), top_k=int(sp.get("top_k") or 0),
-                        min_p=float(sp.get("min_p") or 0.0))
+                        min_p=float(sp.get("min_p") or 0.0),
+                        pres_p=f("presence_penalty", "GLM53_DEFAULT_PRES_P", "0"), freq_p=f("frequency_penalty", "GLM53_DEFAULT_FREQ_P", "0"),
+                        rep_p=f("repetition_penalty", "GLM53_DEFAULT_REP_P", "1.0"),
+                        dry_multiplier=dry, dry_base=f("dry_base", "GLM53_DEFAULT_DRY_BASE", "1.75"),
+                        dry_allowed_length=int(f("dry_allowed_length", "GLM53_DEFAULT_DRY_ALLOWED", "4")),
+                        dry_range=int(f("dry_range", "GLM53_DEFAULT_DRY_RANGE", "4096")) if dry > 0 else 0)
 
 
 @app.on_event("startup")
@@ -285,9 +292,9 @@ _WORD = re.compile(r"\w+")
 
 def _loop_start(t):
     """Index where a degenerate loop begins in t, or None."""
-    tail = t[-1500:]
+    tail = t[-3000:]
     off = len(t) - len(tail)
-    for unit in range(1, 201):
+    for unit in range(1, 601):
         if unit * 3 > len(tail):
             break
         u = tail[-unit:]
@@ -297,23 +304,47 @@ def _loop_start(t):
         while j - unit >= 0 and tail[j - unit:j] == u:
             k += 1; j -= unit
         alnum = any(c.isalnum() for c in u)
-        if k >= 6 and k * unit >= (400 if alnum else 1000):
+        if k >= (6 if unit < 200 else 4) and k * unit >= (400 if alnum else 1000):
             return off + j
     w = t[-3000:]
     words = _WORD.findall(w)
-    if len(words) >= 300:
+    if len(words) >= 200:
         g = [tuple(words[i:i + 8]) for i in range(len(words) - 7)]
-        if 1 - len(set(g)) / len(g) > 0.85:
+        if 1 - len(set(g)) / len(g) > 0.75:
             return len(t) - len(w)
     return None
 
 
-async def guarded_job(ids, sp, stops, thinking, tools_present=False):
+KEEPALIVE_S = float(os.environ.get("GLM53_SSE_KEEPALIVE_S", "10"))
+
+
+async def with_keepalive(agen, interval=KEEPALIVE_S):
+    """Re-yield agen's items; yield None whenever nothing arrived for interval seconds."""
+    it = agen.__aiter__()
+    nxt = asyncio.ensure_future(it.__anext__())
+    try:
+        while True:
+            done, _ = await asyncio.wait({nxt}, timeout=interval)
+            if not done:
+                yield None
+                continue
+            try:
+                item = nxt.result()
+            except StopAsyncIteration:
+                return
+            yield item
+            nxt = asyncio.ensure_future(it.__anext__())
+    finally:
+        if not nxt.done():
+            nxt.cancel()
+
+
+async def guarded_job(ids, sp, stops, thinking, tools_present=False, think_budget=None):
     """run_job with a thinking budget and a loop guard. Yields (text, completion tokens, finish) like run_job; the text
     is what the client sees (monotonic while thinking), the model context is kept consistent across restarts."""
     import nv2 as _nv2
     shown, ctx_extra, used, restarts = "", "", 0, 0
-    budget = THINK_BUDGET if thinking else 0
+    budget = (THINK_BUDGET if think_budget is None else int(think_budget)) if thinking else 0
     max_new = sp.get("max_new_tokens")
     in_think = thinking
     forced = False
@@ -342,6 +373,9 @@ async def guarded_job(ids, sp, stops, thinking, tools_present=False):
                         i = _loop_start(full)
                         if i is not None and i >= len(ctx_extra):
                             restart = ("loop", full[:i], n)
+                if (not restart and fin is not None and fin.get("type") == "stop" and tools_present and in_think
+                        and restarts < 3):   # THINK_STOP_GUARD: an agent turn must not end inside its think block
+                    restart = ("thinkstop", ctx_extra + text, n)
                 if restart:
                     break
                 yield shown + text, used + n, fin
@@ -353,7 +387,7 @@ async def guarded_job(ids, sp, stops, thinking, tools_present=False):
             kind, cut, n = restart
             used += n; restarts += 1
             G["stats"]["guard_" + kind] = G["stats"].get("guard_" + kind, 0) + 1
-            if kind == "loop" and not forced:
+            if kind in ("loop", "thinkstop") and not forced:
                 _nv2.CAR_OVERRIDE = [0, 2, 0.0, 1, 1, 1]
                 forced = True
             if kind == "act":
@@ -482,7 +516,10 @@ def _gen_defaults():
 
 def openai_sp(body):
     dt, dp = _gen_defaults()
-    return {"temperature": body.get("temperature", dt), "top_p": body.get("top_p", dp), "top_k": body.get("top_k"),
+    return {"presence_penalty": body.get("presence_penalty"), "frequency_penalty": body.get("frequency_penalty"),
+            "repetition_penalty": body.get("repetition_penalty"), "dry_multiplier": body.get("dry_multiplier"),
+            "dry_base": body.get("dry_base"), "dry_allowed_length": body.get("dry_allowed_length"), "dry_range": body.get("dry_range"),
+            "temperature": body.get("temperature", dt), "top_p": body.get("top_p", dp), "top_k": body.get("top_k"),
             "min_p": body.get("min_p"), "max_new_tokens": body.get("max_completion_tokens") or body.get("max_tokens")}
 
 
@@ -516,14 +553,18 @@ async def chat(req: Request):
     cid, created, P = "chatcmpl-" + uuid.uuid4().hex[:24], int(time.time()), ids.shape[-1]
     if body.get("stream"):
         async def events():
-            g = guarded_job(ids, sp, stops, thinking, bool(tools))
+            g = guarded_job(ids, sp, stops, thinking, bool(tools), body.get("thinking_budget"))
             gone, wt = watch_disconnect(req)
             sent, in_think, held = 0, thinking, ""
             base = {"id": cid, "object": "chat.completion.chunk", "created": created, "model": args.served_name}
             yield sse(dict(base, choices=[{"index": 0, "delta": {"role": "assistant", "content": ""}, "finish_reason": None}]))
             n, fin = 0, None
             try:
-                async for text, n, fin in g:
+                async for item in with_keepalive(g):
+                    if item is None:
+                        yield ": keep-alive\n\n"
+                        continue
+                    text, n, fin = item
                     new = text[sent:]
                     hold = 0   # hold back a possible partial "</think>" at the end of the text
                     if in_think and fin is None:
@@ -568,7 +609,7 @@ async def chat(req: Request):
                 await g.aclose()
         return StreamingResponse(events(), media_type="text/event-stream")
     text, n, fin = "", 0, None
-    async for text, n, fin in guarded_job(ids, sp, stops, thinking, bool(tools)):
+    async for text, n, fin in guarded_job(ids, sp, stops, thinking, bool(tools), body.get("thinking_budget")):
         pass
     if thinking:
         reasoning, content = split_reasoning(text)

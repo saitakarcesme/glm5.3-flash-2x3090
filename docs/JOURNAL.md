@@ -61,3 +61,17 @@ x4) does 6.4 GB/s. In the 21/21 split GPU1 was link-bound copying experts. Chang
 * Agent suite (fast, before the parser fix): bug fix, data, feature, refactor and single-page site pass, matching exact.
   The report-site task produced its first correct 10 KB page with the guards, then stopped because of the
   think/tool parser bug, which is now fixed.
+
+## Day 3 — public benchmarks and the quantization question
+
+* Benchmark targets (original GLM-5.3-Flash): GPQA Diamond 86.4 (Vals) / 91.2 (AA), MMLU-Pro 86.1 (Vals), LiveCodeBench 80.5
+  (Vals), AA-LCR 80.0 (AA); agentic Terminal-Bench 2.1 84.3 and DeepSWE v1.1 63.4 (Z.ai, 6 h/task harnesses).
+* First MMLU-Pro pass on the 2.05 build (53/70 done, 32k cap): 30/33 correct when it answers (above the original 86.1 %), but
+  20 of 53 runs never commit: 90k–150k characters of coherent but circular reasoning until the cap.
+* Hard set (8 of those questions, same settings): 2.05 baseline 3/8 (5 unanswered); presence penalty 3/8; budget forcing at
+  12k thinking tokens 3/8; DRY (multiplier 0.8, range 4096) 5/8 but 28 tok/s; DRY range 512 no help; **3.05 bpw 5/8** at
+  ~42 tok/s. The indecision is mostly the 2-bit quantization, not the routing.
+* 3.05 bpw on the same stack: 26/16 split (`B0=8.5`), staging 2.75 GB (2.05's 1.8 GB overflowed with 9.44 MB experts),
+  42.8 tok/s on the 3-prompt benchmark. Full benchmark pass running on this build.
+* Server additions: SSE keep-alive (fixes client "terminated" on long held tool calls), loop detector v2 (units up to 600
+  chars), think-stop guard, per-request `thinking_budget`, OpenAI penalties + DRY passthrough.
