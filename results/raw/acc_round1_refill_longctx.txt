@@ -1,0 +1,10 @@
+READY after 130s
+ -- expert_cache: cuda:0: 27 MoE layers (experts 0..287), 2784 slots x 6.29 MB = 17.52 GB (103.1/layer), admit <= 64 pic
+ -- expert_cache: cuda:1: 15 MoE layers (experts 0..287), 2880 slots x 6.29 MB = 18.12 GB (192.0/layer), admit <= 64 pic
+{"tokens": 64000, "depth": 0.5, "elapsed_s": 129.1, "prefill_tok_s": 495.9, "expected": "6305-PELICAN", "answer": "The vault access code is 6305-PELICAN.</", "pass": true}
+[{'enter': 1, 'exit': 1, 'realloc_fail': 0, 'wb': 1053, 'refilled': 1053, 'refill_ms': 454.5, 'flex_chunks': 33, 'flex_gb': 6.64, 'in_prefill': False}, {'enter': 1, 'exit': 1, 'realloc_fail': 0, 'wb': 170, 'refilled': 1056, 'refill_ms': 2041.5, 'flex_chunks': 33, 'flex_gb': 6.64, 'in_prefill': False}]
+[ctx-exact 0 2 0 1 1 1 think=0] {"passed": 27, "total": 32, "pass_rate": 0.8438, "failed": ["HardCtx/0", "HardCtx/18", "HardCtx/20", "HardCtx/25", "HardCtx/29"]} | tokens 14385 gen_s 1987 e2e_tok_s 7.2 | wall 1988s
+[ctx-mid10 3 1 0.10 1 1 0 0.30 think=0] {"passed": 25, "total": 32, "pass_rate": 0.7812, "failed": ["HardCtx/0", "HardCtx/9", "HardCtx/18", "HardCtx/20", "HardCtx/22", "HardCtx/23", "HardCtx/25"]} | tokens 16389 gen_s 694 e2e_tok_s 23.6 | wall 695s
+[ctx-fast 3 1 0.15 1 1 0 0.30 think=0] {"passed": 27, "total": 32, "pass_rate": 0.8438, "failed": ["HardCtx/11", "HardCtx/13", "HardCtx/20", "HardCtx/24", "HardCtx/29"]} | tokens 14816 gen_s 592 e2e_tok_s 25.0 | wall 592s
+[{'enter': 97, 'exit': 97, 'realloc_fail': 0, 'wb': 102388, 'refilled': 102429, 'refill_ms': 37716.4, 'flex_chunks': 33, 'flex_gb': 6.64, 'in_prefill': False}, {'enter': 97, 'exit': 97, 'realloc_fail': 0, 'wb': 16435, 'refilled': 102427, 'refill_ms': 209206.2, 'flex_chunks': 33, 'flex_gb': 6.64, 'in_prefill': False}]
+DONE
