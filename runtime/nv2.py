@@ -282,7 +282,8 @@ class Nv2:
                 except Exception as ex:
                     print(f" !! gpu trace failed: {ex}", flush=True)
             try:
-                v = open("/tmp/glm53_car").read().split()
+                f = f"/tmp/glm53_car_{self.dev.index or 0}"   # claude-opt: optional per-GPU override
+                v = open(f if os.path.exists(f) else "/tmp/glm53_car").read().split()
                 self.car = [int(v[0]), int(v[1]), float(v[2]), int(v[3]), int(v[4])] + ([int(v[5])] if len(v) > 5 else []) + ([float(v[6])] if len(v) > 6 else [])
             except Exception:
                 pass

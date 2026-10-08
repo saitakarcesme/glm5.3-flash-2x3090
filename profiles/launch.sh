@@ -33,7 +33,7 @@ COMMON=(
   -e GLM53_MODE=nvme-exact -e GLM53_MTP_DUAL=1 -e GLM53_MODEL_DOWNLOAD=0 -e MAX_JOBS=1
   -e GLM53_NV_STORE=/nvx/glm53_flash_exl3_2.05bpw_experts.bin
   -e GLM53_MAIN_GPU0_BUDGET="$B0" -e GLM53_MAIN_GPU1_BUDGET="$B1"
-  -e GLM53_NV_RAM_GB_0=16.5 -e GLM53_NV_RAM_GB_1=1 -e GLM53_NV_PF_RING=96          # host RAM tier: almost all to GPU0
+  -e GLM53_NV_RAM_GB_0=13.5 -e GLM53_NV_RAM_GB_1=4 -e GLM53_NV_PF_RING=96          # host RAM tier: GPU1 needs ~4 GiB to absorb its misses
   -e GLM53_MAIN_CPUS=0 -e GLM53_NV_CTL_CPU_0=2 -e GLM53_NV_CTL_CPU_1=4              # i5-14400F: separate P-cores
   -e GLM53_NV_CTL_CPU=1 -e GLM53_NV_READER_CPUS=12-15 -e GLM53_NV_READER_CPUS_0=12-15 -e GLM53_NV_READER_CPUS_1=8-11
   -e GLM53_NV_CPU_CPUS=2-11 -e GLM53_NV_THREADS=4

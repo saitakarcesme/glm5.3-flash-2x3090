@@ -39,3 +39,10 @@ x4) does 6.4 GB/s. In the 21/21 split GPU1 was link-bound copying experts. Chang
 * Prefix reuse across turns works (47.9 s → 0.6–0.8 s TTFT on a 21.6k-token repeated prefix).
 * Needle 16k pass; 64k right code, wrong format (post-prefill cache holes + CAR).
 * Coding benchmark (author-written, 32 problems, executed tests): in progress.
+
+## Day 2 — accuracy
+
+* Post-prefill refill: the 64k needle that failed now passes; long-context coding (unique ~4k context per problem): exact 27/32, fast 27/32, mid 25/32.
+* Per-GPU CAR: running GPU1 exact halves speed (its misses are NVMe over an x4 link), and most of the token-level deviation came from GPU1 skipping experts.
+* Fix: RAM tier 13.5 GiB (GPU0) / 4 GiB (GPU1). Short coding set, same container: exact 27/32, fast 26/32 at 54.7 tok/s (it was 23/32 before).
+* The teacher-forced probe is noisy here (it runs without admission, so it depends on whatever is resident); executed coding pass rate is the decision metric.

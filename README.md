@@ -54,6 +54,7 @@ Quality measured so far (fast vs exact; the same container is switched at runtim
 | same, CAR 10 % (`3 1 0.10 1 1 0 0.30`, 47 tok/s) | 28/32 | 27/32 |
 | Long-context coding (same 32 problems, each with a unique ~4k-token repo context), with post-prefill refill | 27/32 | 27/32 (15 %), 25/32 (10 %) |
 | **Combined, 64 problems** | **55/64** | **50/64** (15 %), **52/64** (10 %) |
+| **After RAM rebalance 13.5 / 4 GiB + refill** (current `launch.sh`), short set, same container | 27/32 | **26/32** at 54.7 tok/s |
 
 **Be clear about this:** on 64 executed coding problems, exact solves 55, fast 50, mid 52. With n=64 the noise is about ±3 problems, so fast and mid trail exact somewhat but the size of the gap is not well resolved yet. at the token level the fast profile is a different model (~1 in 8 next-token choices differ
 under teacher forcing). The short factual and format checks pass, but that is not a broad quality guarantee. An earlier
@@ -73,7 +74,7 @@ when correctness matters more than speed.
 The main wins, in order:
 
 1. Moving layers **off** the x4 GPU (27/15) so GPU1 is almost fully VRAM-resident.
-2. Moving host RAM to GPU0's tier. This needed freeing 7.6 GB of orphaned `/dev/shm` torch segments that zram was
+2. Moving host RAM to GPU0's tier (later rebalanced to 13.5 / 4 GiB: with CAR, GPU1's misses must be cheap RAM hits, not NVMe). This needed freeing 7.6 GB of orphaned `/dev/shm` torch segments that zram was
    holding.
 3. CAR.
 4. A full iterative VRAM warm-up (GPU1 started with only 170 of 3,040 slots filled).
