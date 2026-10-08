@@ -55,6 +55,8 @@ Quality measured so far (fast vs exact; the same container is switched at runtim
 | Long-context coding (same 32 problems, each with a unique ~4k-token repo context), with post-prefill refill | 27/32 | 27/32 (15 %), 25/32 (10 %) |
 | **Combined, 64 problems** | **55/64** | **50/64** (15 %), **52/64** (10 %) |
 | **After RAM rebalance 13.5 / 4 GiB + refill** (current `launch.sh`), short set, same container | 27/32 | **26/32** at 54.7 tok/s |
+| same config, long-context set | 27/32 | **27/32** |
+| **Current profile, both sets** | **54/64** | **53/64** — matches exact within benchmark noise (±3) |
 
 **Be clear about this:** on 64 executed coding problems, exact solves 55, fast 50, mid 52. With n=64 the noise is about ±3 problems, so fast and mid trail exact somewhat but the size of the gap is not well resolved yet. at the token level the fast profile is a different model (~1 in 8 next-token choices differ
 under teacher forcing). The short factual and format checks pass, but that is not a broad quality guarantee. An earlier

@@ -17,3 +17,4 @@
 /home/isa/Experiments/glm53-flash-fit/claude-opt/acc_round3.txt:[r4-fast 3 1 0.15 1 1 0 0.30 think=0] {"passed": 26, "total": 32, "pass_rate": 0.8125, "failed": ["Hard/0", "Hard/12", "Hard/18", "Hard/25", "Hard/26", "Hard/29"]} | tokens 21774 gen_s 365 e2e_tok_s 59.7 | wall 364s
 /home/isa/Experiments/glm53-flash-fit/claude-opt/acc_round3.txt:[r4-exact 0 2 0 1 1 1 think=0] {"passed": 27, "total": 32, "pass_rate": 0.8438, "failed": ["Hard/11", "Hard/18", "Hard/20", "Hard/26", "Hard/28"]} | tokens 10082 gen_s 1158 e2e_tok_s 8.7 | wall 1158s
 /home/isa/Experiments/glm53-flash-fit/claude-opt/acc_round3.txt:DONE
+[r4-ctx-fast 3 1 0.15 1 1 0 0.30 think=0] {"passed": 27, "total": 32, "pass_rate": 0.8438, "failed": ["HardCtx/0", "HardCtx/10", "HardCtx/20", "HardCtx/26", "HardCtx/28"]} | tokens 24376 gen_s 779 e2e_tok_s 31.3 | wall 779s
