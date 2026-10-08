@@ -1,0 +1,40 @@
+{
+ "GLM": {
+  "requests": 67,
+  "agent_wall_s": 2465.0,
+  "output_tokens": 84624,
+  "e2e_output_tok_s": 34.34,
+  "streamed_decode_tok_s": 58.1,
+  "streamed_turns": 24,
+  "median_ttft_s": 9.98,
+  "max_prompt_tokens": 81084,
+  "final_finish": "stop",
+  "site_files": [
+   "index.html"
+  ],
+  "site_bytes": 2633,
+  "index_html": true,
+  "inline_svg": 1,
+  "canvas": 0,
+  "broken_local_refs": [
+   "style.css"
+  ]
+ },
+ "QWEN": {
+  "requests": 7,
+  "agent_wall_s": 155.5,
+  "output_tokens": 17428,
+  "e2e_output_tok_s": 112.13,
+  "streamed_decode_tok_s": 316.15,
+  "streamed_turns": 1,
+  "median_ttft_s": 2.84,
+  "max_prompt_tokens": 15905,
+  "final_finish": "length",
+  "site_files": [],
+  "site_bytes": 0,
+  "index_html": false,
+  "inline_svg": 0,
+  "canvas": 0,
+  "broken_local_refs": []
+ }
+}

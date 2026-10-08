@@ -1,0 +1,1 @@
+{"label": "GLM", "wall_s": 2566, "requests": 67, "completion_tokens": 84624, "prompt_tokens_total": 2901582, "decode_s": 1432.0, "avg_decode_tok_s": 59.1, "median_ttft_s": 9.98}

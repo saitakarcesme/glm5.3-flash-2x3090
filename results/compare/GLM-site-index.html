@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GLM-5.3-Flash on 2× RTX 3090 + 32 GB DDR4 + one NVMe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="hero">
+    <div class="wrap">
+      <h1>GLM-5.3-Flash on 2× RTX 3090 + 32 GB DDR4 + one NVMe</h1>
+      <p class="lede">A recipe (and the measurements behind it) for running <strong>GLM-5.3-Flash</strong> (EXL3
+        <strong>2.05 bpw</strong>, ~76&#160;GB of routed experts, 288&#160;experts × 42&#160;MoE layers, native MTP)
+        on a consumer box that cannot hold the model in VRAM or RAM.</p>
+    </div>
+  </header>
+
+  <nav class="topnav" aria-label="Sections">
+    <a href="#hardware">Hardware</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#car">CAR</a>
+    <a href="#results">Results</a>
+    <a href="#tradeoffs">Trade-offs</a>
+    <a href="#failures">Failures</a>
+    <a href="#run">Run</a>
+    <a href="#credits">Credits</a>
+  </nav>
+
+  <main class="wrap">
+
+    <section id="hardware" aria-labelledby="title-hardware">
+      <h2 id="title-hardware">Hardware</h2>
+
+      <table>
+        <caption>Hardware on the one machine</caption>
+        <thead>
+          <tr><th scope="col">Item</th><th scope="col">Value</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">GPUs</th>
+            <td>2× RTX 3090 24&#160;GB. GPU0 on CPU PCIe 4.0 x16 (measured 20&#160;GB/s H2D),
+                GPU1 on a B760 chipset PCIe 4.0 <var>x4</var> (6.4&#160;GB/s). No P2P/NVLink.</td>
+          </tr>
+          <tr>
+            <th scope="row">CPU / RAM</th>
+            <td>i5-14400F, 32&#160;GB DDR4 (≈17.5&#160;GB usable as expert cache)</td>
+          </tr>
+          <tr>
+            <th scope="row">Disk</th>
+            <td>1× Kingston NV3 2&#160;TB (DRAM-less), LUKS&#160;+&#160;btrfs;
+                ~4.5–5&#160;GB/s sustained O_DIRECT reads</td>
+          </tr>
+          <tr>
+            <th scope="row">Stack</th>
+            <td><code>sybil-solutions/glm53-flash-offload</code> image (ExLlamaV3 1.5.1) + the patches in this repo</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="footnote">Experts are tiered VRAM → pinned host RAM → packed NVMe store. Everything here was measured on that one machine; your numbers will differ.</p>
+
+      <svg viewBox="0 0 900 520" role="img" aria-labelledby="diagram-title">
+        <title>The expert cache tiers</title>
+        <desc>The tiered VRAM → pinned host RAM → packed NVMe store diagram</desc>
+      </svg>
+    </section>

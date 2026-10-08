@@ -1,0 +1,6 @@
+vllm:spec_decode_num_draft_tokens_total{engine="0",model_name="qwen3.8-27b"} 378.0
+vllm:spec_decode_num_accepted_tokens_total{engine="0",model_name="qwen3.8-27b"} 176.0
+vllm:prompt_tokens_total{engine="0",model_name="qwen3.8-27b"} 6699.0
+vllm:generation_tokens_total{engine="0",model_name="qwen3.8-27b"} 229.0
+vllm:request_prefill_time_seconds_sum{engine="0",model_name="qwen3.8-27b"} 2.7235704460181296
+vllm:request_decode_time_seconds_sum{engine="0",model_name="qwen3.8-27b"} 1.3620647469069809
