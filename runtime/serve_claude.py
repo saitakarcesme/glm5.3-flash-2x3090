@@ -133,6 +133,18 @@ def load():
     CTX = args.cache_size
 
 
+BILLING_RE = re.compile(r"x-anthropic-billing-header:(?:\s*[\w.-]+=[^;\n]*;)+\s*")
+
+
+def _strip_billing(c):
+    if isinstance(c, str):
+        return BILLING_RE.sub("", c)
+    if isinstance(c, list):
+        return [dict(x, text=BILLING_RE.sub("", x["text"])) if isinstance(x, dict) and isinstance(x.get("text"), str)
+                else x for x in c]
+    return c
+
+
 def normalize_messages(messages):
     """OpenAI -> GLM template: assistant tool-call arguments as dicts, content never None."""
     out = []
@@ -140,6 +152,8 @@ def normalize_messages(messages):
         m = dict(m)
         if m.get("content") is None:
             m["content"] = ""
+        if m.get("role") == "system":
+            m["content"] = _strip_billing(m["content"])
         if m.get("tool_calls"):
             tcs = []
             for tc in m["tool_calls"]:
@@ -251,11 +265,27 @@ async def run_job(ids, sp, stop_strings=None):
                    stop_conditions=list(EOS) + list(stop_strings or []), decode_special_tokens=False,
                    **({"max_rq_tokens": rq} if rq else {}))
     G["stats"]["requests"] += 1
+    # PFXLOG: how much of this prompt matches the previous one (prefix reuse diagnostics)
+    _prev = G.get("pfx_prev"); _cur = ids[0].tolist(); _c = 0
+    if _prev is not None:
+        _m = min(len(_prev), len(_cur))
+        while _c < _m and _prev[_c] == _cur[_c]: _c += 1
+    G["pfx_prev"] = _cur; _t0 = time.time(); _first = True
+    try:
+        os.makedirs("/tmp/glm53_prompts", exist_ok=True); _k = G["stats"]["requests"] % 6
+        open(f"/tmp/glm53_prompts/p{_k}.txt", "w").write(tok.decode(ids, decode_special_tokens=True)[0] if hasattr(tok, "decode") else "")
+    except Exception as _e:
+        print(" -- pfxlog dump failed", _e, flush=True)
     n, text, done = 0, "", False
     try:
         async for r in job:
             if r.get("stage") != "streaming":
                 continue
+            if _first:
+                _first = False
+                try: _hr = gen.get_cache_stats().get("hit_rate")
+                except Exception: _hr = None
+                print(f" -- pfx P={len(_cur)} common={_c} new={len(_cur) - _c} ttft={time.time() - _t0:.1f}s cache_hit_rate={_hr}", flush=True)
             chunk = r.get("text") or ""
             tids = r.get("token_ids")
             n += int(tids.numel()) if tids is not None else (1 if chunk else 0)
@@ -285,6 +315,7 @@ async def run_job(ids, sp, stop_strings=None):
 THINK_BUDGET = int(os.environ.get("GLM53_THINK_BUDGET", "6144"))
 LOOP_GUARD = os.environ.get("GLM53_LOOP_GUARD", "1") == "1"
 THINK_CLOSE = "\n\nI have thought about this enough; now I will carry it out.\n</think>\n\n"
+AGENT_TURN_HARDCAP = int(os.environ.get("GLM53_AGENT_TURN_HARDCAP", "16384"))
 AGENT_TURN_CAP = int(os.environ.get("GLM53_AGENT_TURN_CAP", "12288"))
 ACT_BUDGET = int(os.environ.get("GLM53_ACT_BUDGET", "3000"))
 ACT_NUDGE = "\n\nEnough analysis — I will make the tool call now.\n"
@@ -395,7 +426,7 @@ async def guarded_job(ids, sp, stops, thinking, tools_present=False, think_budge
                                 yield shown + text[:max(0, i - len(ctx_extra))], used + n, {"type": "stop", "reason": "guard_endturn"}
                                 return
                     if (not restart and tools_present and AGENT_TURN_CAP and used + n >= AGENT_TURN_CAP
-                            and "<tool_call>" not in text):
+                            and ("<tool_call>" not in text or used + n >= AGENT_TURN_HARDCAP)):
                         G["stats"]["guard_turncap"] = G["stats"].get("guard_turncap", 0) + 1
                         print(f" -- guard: agent turn cap {AGENT_TURN_CAP} reached, ending turn", flush=True)
                         await g.aclose()
