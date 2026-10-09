@@ -1,0 +1,59 @@
+{
+ "agg_tok_s": 30.958018801265325,
+ "per_prompt": {
+  "0": 30.421333789315554,
+  "1": 29.670668368796626,
+  "2": 33.02263153311442
+ },
+ "ttft_median": 0.6567889844882302,
+ "rows": [
+  {
+   "ttft": 0.6396860620006919,
+   "tok": 255,
+   "dt": 8.128080412046984,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are auxiliary data structures that dramatically speed up data retrieval operations at the cost of additional storage space and slower write operations. Think of them like the index at the back of a book: instead of reading every page to find a topic, you flip to the sorted index, find the page number, and jump directly there.\n\nWithout an index, a database must perform a **full table scan** — reading every row to find matches. With an index, the database can locate specific rows in logarithmic time, turning operations that would take seconds or minutes into milliseconds.\n\n---\n\n## How Indexes Work: The B-Tree\n\nThe most common index structure is the **B-tree** (and its variant, the B+ tree). Most major databases — PostgreSQL, MySQL (InnoDB), Oracle, SQL Server — use B-trees or B+ trees as their default index type.\n\n### Structure\n\nA B-tree is a self-balancing, sorted tree structure with these properties:\n\n- **Nodes contain multiple keys**: Unlike a binary tree where each node holds one value, B-tree nodes hold many keys (often dozens to hundreds), organized in sorted order.\n- **High branching factor**: Each node can have many children, keeping",
+   "prompt": 0,
+   "tok_s": 31.372721119005334
+  },
+  {
+   "ttft": 0.5393137389328331,
+   "tok": 255,
+   "dt": 8.59342910302803,
+   "text": "# Merging Overlapping Intervals\n\n## Solution\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals into non-overlapping merged intervals.\n\n    Args:\n        intervals: List of [start, end] pairs (lists or tuples).\n\n    Returns:\n        List of merged [start, end] intervals, sorted by start time.\n\n    Time complexity:  O(n log n) — dominated by sorting.\n    Space complexity: O(n) — for the output list.\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort by start; ties broken by end (ascending)\n    intervals.sort(key=lambda iv: (iv[0], iv[1]))\n\n    merged = [intervals[0]]\n\n    for start, end in intervals[1:]:\n        prev_start, prev_end = merged[-1]\n\n        # Overlap (or adjacency) if current start <= previous end\n        if start <= prev_end:\n            # Extend the previous interval; end is max of both ends\n            merged[-1] = [prev_start, max(prev_end, end)]\n        else:\n            # No overlap — start a new interval\n            merged.append([start, end])\n\n    return merged\n```\n\n## Executable Tests\n\n```python\ndef",
+   "prompt": 1,
+   "tok_s": 29.673835315653765
+  },
+  {
+   "ttft": 0.6845998209901154,
+   "tok": 255,
+   "dt": 7.903568119974807,
+   "text": "# İstanbul'da Bir Sonbahar Günü\n\nSabahın ilk ışıkları henüz Boğaz'ın üzerinde dans ederken, İstanbul yavaş yavaş uyanıyordu. Ekim ayının ortasına gelmiştik ve şehir, sonbaharın o büyülü dönüşümüne tanık oluyordu. Sultanahmet Camii'nin minarelerinin silueti, sisli bir sabahın puslu perdesinin ardında, hayalet gibi duruyordu. Güneş, henüz Marmara Denizi'nin dalgın yüzeyinden yükselmiş, altın rengi bir ışık huzmesiyle Galata Kulesi'nin tarihi duvarlarına vurmaktaydı.\n\nBen, o sabah erken kalkmış, Beşiktaş'tan vapura binmiştim. Vapur güvertesinde, birkaç yolcu vardı; bazıları işine gidip gelen memurlar, bazıları ise sabah yürüyüşü yapan emekliler. Denizin üzerinde hafif bir rüzgâr esiyordu, ama o rüzgâr artık yazın sıc",
+   "prompt": 2,
+   "tok_s": 32.26390867126642
+  },
+  {
+   "ttft": 0.6738919069757685,
+   "tok": 255,
+   "dt": 8.65288304304704,
+   "text": "# Database Indexes: A Comprehensive Guide\n\n## Introduction\n\nDatabase indexes are auxiliary data structures that dramatically speed up data retrieval operations at the cost of additional storage space and slower write operations. Think of them like the index at the back of a book: instead of reading every page to find a topic, you flip to the index, find the page number, and jump directly there. Without indexes, databases must perform full table scans—reading every row—which becomes prohibitively slow as tables grow.\n\n## Why Indexes Matter\n\nConsider a table with 10 million rows. A query like:\n\n```sql\nSELECT * FROM users WHERE email = 'alice@example.com';\n```\n\nWithout an index, the database must examine every single row (a full table scan). With 10 million rows, this could take seconds or even minutes. With an index on `email`, the lookup happens in logarithmic time—roughly 20-30 comparisons instead of 10 million. The difference between O(n) and O(log n) is the difference between \"unusable\" and \"instantaneous\" at scale.\n\n## B-Trees: The Dominant Index Structure\n\nMost relational databases (PostgreSQL, MySQL, SQL Server, Oracle) use B-trees (or B+ trees) as",
+   "prompt": 0,
+   "tok_s": 29.46994645962577
+  },
+  {
+   "ttft": 0.5863267309032381,
+   "tok": 255,
+   "dt": 8.59526376600843,
+   "text": "# Merging Overlapping Intervals\n\n## Solution\n\n```python\ndef merge_intervals(intervals):\n    \"\"\"\n    Merge overlapping intervals in a list of [start, end] pairs.\n\n    Args:\n        intervals: list of [start, end] pairs (lists or tuples)\n\n    Returns:\n        List of merged, non-overlapping intervals, sorted by start.\n\n    Time complexity:  O(n log n)  (dominated by sorting)\n    Space complexity: O(n)        (for the output list)\n    \"\"\"\n    if not intervals:\n        return []\n\n    # Sort by start; break ties by end so [1,2] comes before [1,4]\n    intervals_sorted = sorted(intervals, key=lambda iv: (iv[0], iv[1]))\n\n    merged = [list(intervals_sorted[0])]  # copy so we don't mutate input\n\n    for start, end in intervals_sorted[1:]:\n        last = merged[-1]\n\n        # Overlap/touch if current interval starts before or exactly at\n        # the end of the last merged interval\n        if start <= last[1]:\n            # Extend the last interval if the current one reaches further\n            last[1] = max(last[1], end)\n",
+   "prompt": 1,
+   "tok_s": 29.667501421939484
+  },
+  {
+   "ttft": 0.7194194110343233,
+   "tok": 255,
+   "dt": 7.5485428150277585,
+   "text": "# Bir Sonbahar Günü İstanbul'da\n\nSabahın ilk saatlerinde, henüz güneş ufuk çizgisinin biraz üzerindeyken, İstanbul'u bir sonbahar sabahı karşıladı. Ekim ayının ortasına gelmişlerdi ve şehir, yazın sıcak kucaklığını yavaş yavaş bırakıyor, serin ve altın rengi bir mevsime hazırlanıyordu.\n\nBoğaz'ın üzerinde sabah sisinin ince bir örtü gibi yayılmıştı. Su, o sabah özellikle sakin ve durgundu; sanki deniz bile mevsimin değişimini hissediyor, yazın coşkusundan sonra kendini dinlendiriyordu. Vapurun düdükleri, sisin içinde daha boğuk, daha uzak bir sesle duyuluyordu. Eminönü iskelesinde, balıkçıların tekneleri henüz denize açılmıştı; hamsi sezonunun ilk habercileri, Karaköy'de balık tezgahlarını süsleyen gümüşlü takı",
+   "prompt": 2,
+   "tok_s": 33.78135439496243
+  }
+ ]
+}

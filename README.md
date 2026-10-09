@@ -13,13 +13,37 @@ A recipe (and the measurements behind it) for running **GLM-5.3-Flash** (EXL3 **
 Experts are tiered VRAM → pinned host RAM → packed NVMe store. Everything here was measured on that one machine; your
 numbers will differ.
 
+## Speed, honestly
+
+* **Peak: ~60 tok/s.** The best single measurements were 60–68 tok/s and the best 3-prompt average 55 tok/s, all with
+  the lossy `fast` profile on short answers. That profile breaks long reasoning (see below), so it is not what we
+  recommend.
+* **Average: ~30 tok/s.** That is what you get day to day with the `faithful` profile, which keeps the model's
+  behaviour: 31.0 tok/s in the final release check, 27–29 tok/s across real agent sessions. For comparison, hosted
+  GLM-5.3-Flash APIs run at ~51 tok/s.
+* Starting point on this box was 8.5 tok/s.
+
+## Final release check (2026-10-09, `faithful` profile, 128k context)
+
+| Check | Result |
+|---|---|
+| Decode speed (3 prompts × 256 tokens) | **31.0 tok/s** (30.4 / 29.7 / 33.0), first token 0.66 s |
+| Tool calls (streamed, OpenAI API) | single call ✅, 3 parallel calls ✅ |
+| Prompt cache | ~8k-token prompt: 27.0 s cold → **0.5 s** on the next turn |
+| Coding: 32 problems, generated code executed against tests, no thinking | **28/32** (exact-mode baseline on the same set: 27/32), 28.3 tok/s |
+| Hard reasoning: the 3 hardest MMLU-Pro questions, 16k cap, server default (thinking budget 6,144) | **2/3**, all 3 answered, 5.2k tokens on average (an earlier run: 3/3) |
+| Same 3 questions, thinking budget off (raw model) | 1/3; two ran to the 16k cap while still thinking, one after it had already reached the right answer |
+
+Three questions is a smoke test, not a benchmark score (±53 points). Raw outputs and the scripts are in
+`results/final-check/`. No public benchmark score for this build is claimed yet.
+
 ## Profiles (decode tok/s, 3 prompts × 256 tokens, warm cache, concurrency 1, 128k context)
 
 | Profile | Decode tok/s | What it skips | Use it for |
 |---|---:|---|---|
 | Starting point (21/21 split, RAM tier 6+6 GiB) | 8.5 | nothing | — |
 | **exact** | **~13–14** | nothing (bit-exact expert path) | reference, maximum fidelity |
-| **faithful** (default) — mode 2 / 20 % | **~29** | only experts that are neither in VRAM nor in RAM *and* carry < 20 % of the token's routing weight | **daily use, reasoning, agents** |
+| **faithful** (default) — mode 2 / 20 % | **~30** | only experts that are neither in VRAM nor in RAM *and* carry < 20 % of the token's routing weight | **daily use, reasoning, agents** |
 | fast (lossy) — mode 3 / 15 % | ~54 | also RAM-resident experts under 15 % | short single-turn answers only, see the warning below |
 
 **Warning about `fast`.** It looks fine on short tasks (16/16 factual, 53/64 executed coding problems vs 54/64 exact) but it
@@ -66,10 +90,22 @@ fixed in `runtime/serve_claude.py`:
 | Degenerate loops (`OK — OK — …`) | Mostly aggressive CAR (see above) | **Loop guard**: cut back to the loop start, continue with a more faithful routing; a 4th loop ends the turn; agent turns end after 12,288 tokens without a tool call |
 | Agent stops with `finish=stop` and no tool call | Model opens `<tool_call>` *inside* the think block; the parser treated it as reasoning | Treat `<tool_call>` during thinking as the end of the thinking (streaming and non-streaming) |
 | Runaway amplification when most experts are skipped | Renormalisation scale tot/kept unbounded | Cap at 1.5× (`GLM53_CAR_MAXSCALE`) |
+| **Claude Code: every agent turn waited 50–110 s** before the first token, so Terminal-Bench tasks timed out | Claude Code puts `x-anthropic-billing-header: …; cch=<random>;` at the start of the system prompt; the random value changes on every request, so the prompt cache never matched and each turn re-read 6–22k tokens | The server strips that header (billing metadata, not instructions). First token per turn: 50 s → **1–2 s** |
+| Parallel tool calls reached Claude Code as one broken call (`{…}{…}{…}`) | All calls were streamed in one SSE delta and the LiteLLM Anthropic adapter merged them | One SSE chunk per tool call |
 
 Agent suite (`bench/agentbench`, pi non-interactive, 6 tasks, automatic checks in a `--network none` container):
-small and medium tasks (bug fix, feature, refactor, data, single page) pass in fast mode, as they do in exact mode, at 2–5×
-the speed. The hardest task (synthesise a site from long, noisy notes) is still being stabilised; see `docs/JOURNAL.md`.
+small and medium tasks (bug fix, feature, refactor, data, single page) pass. The hardest task (synthesise a site from
+long, noisy notes) is still being stabilised; see `docs/JOURNAL.md`.
+
+Real-world example (`bench/sitebench`, one prompt, pi, `faithful`): "Create a React website about Inference Engineering
+… green, futuristic, minimalistic … npm install and npm run build must succeed." Result: a working Vite + React site,
+built on the first try, in **11 min 38 s**, 13 model turns, 16.9k output tokens, peak context 19.2k, **27 tok/s**. With no
+web access it could not verify book quotes, so it labelled them as paraphrases instead of inventing them, as the prompt
+asked. A simpler "flower website" run via Claude Code: 9 min 43 s, 51 turns, 38.5 tok/s, built without errors.
+
+Using it from agents: pi talks to the server directly (OpenAI API). Claude Code needs an Anthropic-compatible proxy
+(LiteLLM with the `hosted_vllm/` provider; see `bench/terminal-bench`). Hermes Agent works too, but turn off its
+auto-title and background tasks, or their extra thinking-heavy requests queue up in front of the real work.
 
 ## Things that were measured and did *not* help
 
@@ -115,7 +151,11 @@ Switch modes without a restart:
 * `bench/` — decode benchmarks, KL / teacher-forced probe, factual check, needle and prefix-reuse tests, `codeeval/`
   (an author-written 32-problem coding benchmark with verified reference solutions; generated code is executed in a
   `--network none` container).
-* `results/raw/` — raw logs of every sweep.
+* `bench/sitebench/` — one-prompt agent runs (Claude Code or pi) with a time / tokens / context / speed report, and a
+  full-screen recording script for the resulting site.
+* `bench/terminal-bench/` — the Terminal-Bench 2.1 orchestration and Claude Code + LiteLLM configuration.
+* `results/raw/` — raw logs of every sweep; `results/final-check/` — the release check below.
+* `docs/ISSUES.md` — every problem found, with cause and fix.
 * `docs/JOURNAL.md` — chronological notes.
 
 ## Open issues / next steps
@@ -123,8 +163,12 @@ Switch modes without a restart:
 * ~~Post-prefill cache holes~~ **fixed** (`runtime/expert_cache.py` + `Nv2.refill`): a long prefill hands ~6.6 GB of expert
   VRAM per GPU to activations; the evicted experts are now re-admitted right after prefill (GPU0 1,053 in 0.45 s from RAM,
   GPU1 1,056 in 2.0 s mostly from NVMe). The 64k needle that failed before now passes.
-* Terminal-Bench 2.1 run on the `faithful` profile (in progress); every issue found is logged in `docs/ISSUES.md`.
+* **Terminal-Bench 2.1: no score yet.** The runs so far (10-task subset, Claude Code harness) timed out because of the
+  prompt-cache bug above, which is now fixed; the re-run was stopped before it finished. Treat any TB number as unmeasured.
+  Every issue found on the way is logged in `docs/ISSUES.md` for the next full benchmark run.
 * Claude Code harness needs the host firewall to allow docker networks → the local proxy (see ISSUES T16).
+* A client that is killed mid-request can leave already-queued requests running on the server (batch size 1), which
+  blocks the next client until they finish. Restart the server, or wait, after killing an agent.
 * Contexts above 128k (8-bit KV cache) and the prefill speed for them.
 
 Credits: [0xSero](https://github.com/0xSero) for the offload runtime and NVMe store design, turboderp for ExLlamaV3 and

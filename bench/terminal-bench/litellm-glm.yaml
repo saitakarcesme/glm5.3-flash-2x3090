@@ -1,0 +1,12 @@
+model_list:
+  - model_name: glm-5.3-flash
+    litellm_params:
+      model: hosted_vllm/glm-5.3-flash
+      api_base: http://127.0.0.1:30270/v1
+      api_key: local
+      top_p: 0.95
+litellm_settings:
+  drop_params: true
+  request_timeout: 3600
+general_settings:
+  master_key: <YOUR_LITELLM_MASTER_KEY>

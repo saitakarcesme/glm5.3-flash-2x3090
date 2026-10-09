@@ -1,0 +1,20 @@
+n_concurrent_trials: 1
+n_attempts: 1
+agents:
+  - name: claude-code
+    model_name: anthropic/glm-5.3-flash
+    kwargs:
+      version: "2.1.123"
+      disable_web_search: true
+    env:
+      ANTHROPIC_BASE_URL: http://172.17.0.1:4000
+      ANTHROPIC_AUTH_TOKEN: <YOUR_LITELLM_MASTER_KEY>
+      ANTHROPIC_MODEL: glm-5.3-flash
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: glm-5.3-flash
+      ANTHROPIC_DEFAULT_SONNET_MODEL: glm-5.3-flash
+      ANTHROPIC_DEFAULT_OPUS_MODEL: glm-5.3-flash
+      CLAUDE_CODE_SUBAGENT_MODEL: glm-5.3-flash
+      API_TIMEOUT_MS: "3000000"
+      CLAUDE_CODE_MAX_OUTPUT_TOKENS: "32000"
+      DISABLE_TELEMETRY: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"

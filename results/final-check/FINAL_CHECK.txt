@@ -1,0 +1,9 @@
+# final check Fri Oct  9 10:17:13 PM CEST 2026
+speed: AGG 30.958 PER {0: 30.42, 1: 29.67, 2: 33.02} TTFT 0.66
+tools+cache: {"single_tool_call": true, "parallel_tool_calls_3": true, "prefill_cold_s": 27.0, "prefill_cached_s": 0.5}
+hard reasoning (3 hardest MMLU-Pro, 16k cap): FINAL {"n": 3, "correct": 1, "accuracy": 33.33, "ci95": 53.34, "no_answer": 2, "avg_completion_tokens": 11091, "e2e_tok_s": 37.5}
+coding (32 executed problems, no thinking): [final-faithful 2 0 0.20 1 1 0 1.01 1.5 think=0] {"passed": 28, "total": 32, "pass_rate": 0.875, "failed": ["Hard/0", "Hard/18", "Hard/20", "Hard/22"]} | tokens 10285 gen_s 363 e2e_tok_s 28.3 | wall 364s
+guards: 4
+FINAL_DONE
+hard reasoning, server default (thinking budget 6144): FINAL {"n": 3, "correct": 2, "accuracy": 66.67, "ci95": 53.34, "no_answer": 0, "avg_completion_tokens": 5179, "e2e_tok_s": 30.0}
+HARD3B_DONE
