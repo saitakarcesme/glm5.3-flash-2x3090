@@ -270,7 +270,7 @@ async def run_job(ids, sp, stop_strings=None):
     if _prev is not None:
         _m = min(len(_prev), len(_cur))
         while _c < _m and _prev[_c] == _cur[_c]: _c += 1
-    G["pfx_prev"] = _cur; _t0 = time.time(); _first = True
+    G["pfx_prev"] = _cur; _t0 = time.time(); _first = True; _tf = None
     try:
         os.makedirs("/tmp/glm53_prompts", exist_ok=True); _k = G["stats"]["requests"] % 6
         open(f"/tmp/glm53_prompts/p{_k}.txt", "w").write(tok.decode(ids, decode_special_tokens=True)[0] if hasattr(tok, "decode") else "")
@@ -286,6 +286,7 @@ async def run_job(ids, sp, stop_strings=None):
                 try: _hr = gen.get_cache_stats().get("hit_rate")
                 except Exception: _hr = None
                 print(f" -- pfx P={len(_cur)} common={_c} new={len(_cur) - _c} ttft={time.time() - _t0:.1f}s cache_hit_rate={_hr}", flush=True)
+                _tf = time.time()
             chunk = r.get("text") or ""
             tids = r.get("token_ids")
             n += int(tids.numel()) if tids is not None else (1 if chunk else 0)
@@ -303,6 +304,10 @@ async def run_job(ids, sp, stop_strings=None):
             yield text, n, fin
         done = True
     finally:
+        # REQLOG
+        _te = time.time(); _dec = (_te - _tf) if _tf else 0.0
+        print(f" -- req P={len(_cur)} prefill={len(_cur) - _c} out={n} ttft={((_tf or _te) - _t0):.1f}s "
+              f"decode={_dec:.1f}s tok_s={(n / _dec) if _dec > 0 else 0:.1f} done={done}", flush=True)
         if not done:   # client went away: stop the job, free the slot
             try:
                 await job.cancel()
@@ -659,7 +664,8 @@ async def chat(req: Request):
                         yield sse(dict(base, choices=[{"index": 0, "delta": {"content": content}, "finish_reason": None}]))
                     if calls:
                         reason = "tool_calls"
-                        yield sse(dict(base, choices=[{"index": 0, "delta": {"tool_calls": [dict(c, index=i) for i, c in enumerate(calls)]}, "finish_reason": None}]))
+                        for i, c in enumerate(calls):   # TCSPLIT: one chunk per tool call
+                            yield sse(dict(base, choices=[{"index": 0, "delta": {"tool_calls": [dict(c, index=i)]}, "finish_reason": None}]))
                 usage = {"prompt_tokens": P, "completion_tokens": n, "total_tokens": P + n}
                 yield sse(dict(base, choices=[{"index": 0, "delta": {}, "finish_reason": reason}], usage=usage))
                 yield "data: [DONE]\n\n"
