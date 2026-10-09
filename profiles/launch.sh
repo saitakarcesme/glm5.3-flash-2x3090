@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Launch GLM-5.3-Flash (EXL3 2.05 bpw) on 2x RTX 3090 + ~32 GB DDR4 + one NVMe, OpenAI-compatible API on 127.0.0.1:${PORT}.
 #
-#   profiles/launch.sh fast      # cache-aware routing, ~50-55 tok/s decode, LOSSY (see README "Quality")
+#   profiles/launch.sh faithful  # default: skip only rare NVMe-only, low-weight experts, ~29 tok/s, reasoning intact
 #   profiles/launch.sh exact     # bit-exact expert path, ~14 tok/s decode
+#   profiles/launch.sh fast      # also skips RAM experts, ~54 tok/s, LOSSY: breaks long reasoning (see README)
 #
 # Both profiles are the same container; the mode can be switched at runtime without a restart:
 #   docker exec glm53 sh -c 'echo 0 2 0 1 1 1 > /tmp/glm53_car'          # exact
@@ -11,7 +12,7 @@
 # Required: GLM_MODEL_DIR (turboderp/GLM-5.3-Flash-exl3, branch 2.05bpw) and GLM_STORE_DIR (packed NVMe expert store
 # glm53_flash_exl3_2.05bpw_experts.{bin,json}, built once with the upstream image's `pack-store`).
 set -euo pipefail
-PROFILE=${1:-fast}
+PROFILE=${1:-faithful}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 : "${GLM_MODEL_DIR:?set GLM_MODEL_DIR to the 2.05bpw EXL3 checkpoint}"
 : "${GLM_STORE_DIR:?set GLM_STORE_DIR to the directory holding glm53_flash_exl3_2.05bpw_experts.bin/.json}"
@@ -43,8 +44,10 @@ COMMON=(
 case "$PROFILE" in
   fast)  MODE=(-e GLM53_CAR=3 -e GLM53_CAR_KEEP=1 -e GLM53_CAR_THRESH=0.15 -e GLM53_CAR_RENORM=1 -e GLM53_CAR_SMALL=1
                -e GLM53_CAR_PF=0 -e GLM53_CAR_TNV=0.30 -e GLM53_CAR_MAXSCALE=1.5) ;;
+  faithful) MODE=(-e GLM53_CAR=2 -e GLM53_CAR_KEEP=0 -e GLM53_CAR_THRESH=0.20 -e GLM53_CAR_RENORM=1 -e GLM53_CAR_SMALL=1
+               -e GLM53_CAR_PF=0 -e GLM53_CAR_TNV=1.01 -e GLM53_CAR_MAXSCALE=1.5) ;;
   exact) MODE=(-e GLM53_CAR=0) ;;
-  *) echo "profile must be fast or exact" >&2; exit 1 ;;
+  *) echo "profile must be faithful, exact or fast" >&2; exit 1 ;;
 esac
 
 docker run -d --name "$NAME" --restart unless-stopped --gpus all \

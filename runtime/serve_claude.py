@@ -285,13 +285,24 @@ async def run_job(ids, sp, stop_strings=None):
 THINK_BUDGET = int(os.environ.get("GLM53_THINK_BUDGET", "6144"))
 LOOP_GUARD = os.environ.get("GLM53_LOOP_GUARD", "1") == "1"
 THINK_CLOSE = "\n\nI have thought about this enough; now I will carry it out.\n</think>\n\n"
+AGENT_TURN_CAP = int(os.environ.get("GLM53_AGENT_TURN_CAP", "12288"))
 ACT_BUDGET = int(os.environ.get("GLM53_ACT_BUDGET", "3000"))
 ACT_NUDGE = "\n\nEnough analysis — I will make the tool call now.\n"
 _WORD = re.compile(r"\w+")
 
 
+GUARD_FALLBACK = [float(x) if "." in x else int(x) for x in os.environ.get("GLM53_GUARD_FALLBACK", "2 0 0.10 1 1 0 1.01 1.5").split()]
+
+
+def _structured(t):
+    """True if the recent text is a tool call or a JSON command batch (legitimately repetitive)."""
+    w = t[-3000:]
+    return ("<tool_call>" in w or "<arg_value>" in w or w.count('": ') >= 12 or w.count("keystrokes") >= 3)
+
+
 def _loop_start(t):
     """Index where a degenerate loop begins in t, or None."""
+    structured = _structured(t)
     tail = t[-3000:]
     off = len(t) - len(tail)
     for unit in range(1, 601):
@@ -304,8 +315,11 @@ def _loop_start(t):
         while j - unit >= 0 and tail[j - unit:j] == u:
             k += 1; j -= unit
         alnum = any(c.isalnum() for c in u)
-        if k >= (6 if unit < 200 else 4) and k * unit >= (400 if alnum else 1000):
+        need = 12 if structured else (6 if unit < 200 else 4)
+        if k >= need and k * unit >= (400 if alnum else 1000):
             return off + j
+    if structured:
+        return None
     w = t[-3000:]
     words = _WORD.findall(w)
     if len(words) >= 200:
@@ -368,11 +382,25 @@ async def guarded_job(ids, sp, stops, thinking, tools_present=False, think_budge
                     elif (tools_present and not in_think and not acted and ACT_BUDGET and "<tool_call>" not in text
                           and len(text.split("</think>")[-1]) / 3.6 > ACT_BUDGET):
                         restart = ("act", ctx_extra + text, n)
-                    elif LOOP_GUARD and restarts < 3:
+                    elif LOOP_GUARD:
                         full = ctx_extra + text
                         i = _loop_start(full)
                         if i is not None and i >= len(ctx_extra):
-                            restart = ("loop", full[:i], n)
+                            if restarts < 3:
+                                restart = ("loop", full[:i], n)
+                            else:   # GUARD v4: stop spinning, end the turn with what came before the loop
+                                G["stats"]["guard_endturn"] = G["stats"].get("guard_endturn", 0) + 1
+                                print(f" -- guard: 4th loop, ending turn after {used + n} tokens", flush=True)
+                                await g.aclose()
+                                yield shown + text[:max(0, i - len(ctx_extra))], used + n, {"type": "stop", "reason": "guard_endturn"}
+                                return
+                    if (not restart and tools_present and AGENT_TURN_CAP and used + n >= AGENT_TURN_CAP
+                            and "<tool_call>" not in text):
+                        G["stats"]["guard_turncap"] = G["stats"].get("guard_turncap", 0) + 1
+                        print(f" -- guard: agent turn cap {AGENT_TURN_CAP} reached, ending turn", flush=True)
+                        await g.aclose()
+                        yield shown + text, used + n, {"type": "stop", "reason": "guard_turncap"}
+                        return
                 if (not restart and fin is not None and fin.get("type") == "stop" and tools_present and in_think
                         and restarts < 3):   # THINK_STOP_GUARD: an agent turn must not end inside its think block
                     restart = ("thinkstop", ctx_extra + text, n)
@@ -388,7 +416,7 @@ async def guarded_job(ids, sp, stops, thinking, tools_present=False, think_budge
             used += n; restarts += 1
             G["stats"]["guard_" + kind] = G["stats"].get("guard_" + kind, 0) + 1
             if kind in ("loop", "thinkstop") and not forced:
-                _nv2.CAR_OVERRIDE = [0, 2, 0.0, 1, 1, 1]
+                _nv2.CAR_OVERRIDE = list(GUARD_FALLBACK)
                 forced = True
             if kind == "act":
                 acted = True
