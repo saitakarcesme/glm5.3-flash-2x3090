@@ -50,7 +50,7 @@ case "$PROFILE" in
   *) echo "profile must be faithful, exact or fast" >&2; exit 1 ;;
 esac
 
-docker run -d --name "$NAME" --restart unless-stopped --gpus all \
+docker run -d --name "$NAME" --restart no --gpus all \
   --memory 26g --memory-swap 26g --shm-size 1g --ulimit memlock=-1 \
   -p 127.0.0.1:"$PORT":30000 \
   "${COMMON[@]}" "${MODE[@]}" \
